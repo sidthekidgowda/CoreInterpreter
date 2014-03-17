@@ -26,8 +26,9 @@ public class Scanner {
 		LPAREN, RPAREN, LBRACKET, RBRACKET, OF
 	}
 	/**
-	 * Constructor for the 
-	 * @param program is the incoming program
+	 * Constructor for the Scanner class
+	 * 
+	 * @param program is the incoming program coming in from the CoreInterpreter
 	 * @throws IOException
 	 */
 	public Scanner(BufferedReader program)
@@ -45,11 +46,21 @@ public class Scanner {
 			{
 				this.input.append(read_line);
 			}
+			
+			//Test and see if everything is printed on one line
+			
 		}
 		catch (IOException e)
 		{
 			System.out.println("General IO Exception: " + e.getMessage());
 		}
+	}
+	
+	//Test and see if everything is printed on one line
+	public void printString()
+	{
+		System.out.println(this.input.toString());
+		System.out.println();
 	}
 	
 	/**

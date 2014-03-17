@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.List;
 
 /**
@@ -26,7 +28,7 @@ public class CoreInterpreter
  
     	//Send the input program into the lexical analyzer
     	this.lex_analyzer = new Scanner(program);
-    	
+    	this.lex_analyzer.printString();
     }
 
     /**
@@ -54,5 +56,19 @@ public class CoreInterpreter
 		/* Replace with your code */
 		/* Remember, this method should never return null */
         return null;
+    }
+    
+    /**
+     * Delete This Main method used only for testing
+     * @throws FileNotFoundException 
+     */
+    
+    public static void main(String[] args) throws FileNotFoundException
+    {
+    	CoreInterpreter c = new CoreInterpreter(new BufferedReader(new FileReader("t1.code")));
+    	CoreInterpreter c2 = new CoreInterpreter(new BufferedReader(new FileReader("t3.code")));
+    	CoreInterpreter c3 = new CoreInterpreter(new BufferedReader(new FileReader("t4.code")));
+        
+        
     }
 }
