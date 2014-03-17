@@ -12,7 +12,7 @@ public class CoreInterpreter
 {   
 	// insert instance variable(s) here, if any
 	
-	private StringBuffer input_program;
+	private Scanner lex_analyzer = null;
 
 	/**
      * Explicit constructor to perform lexical analysis and parsing
@@ -23,10 +23,10 @@ public class CoreInterpreter
     public CoreInterpreter(BufferedReader program)
     {
     	/* Insert your code here */
+ 
+    	//Send the input program into the lexical analyzer
+    	this.lex_analyzer = new Scanner(program);
     	
-    	/*
-    	 * Take Buffered Reader input and put everything in one line for the Scanner.
-    	 */
     }
 
     /**
@@ -40,6 +40,7 @@ public class CoreInterpreter
 		/* Remember, this method should never return null */
     	return null;
     }
+    
     
     /**
      * Executor
