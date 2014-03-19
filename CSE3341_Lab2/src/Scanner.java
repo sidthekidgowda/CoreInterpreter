@@ -28,20 +28,6 @@ public class Scanner {
 		Scanner.words = new ArrayList<String>(Arrays.asList(keywords));
 	}
 	
-	
-	/**
-	 * Enumerated Token Types of the Core Language  
-	 * @author Sid Gowda
-	 *
-	 */
-	public enum TokenType
-	{
-		
-		PROGRAM, BEGIN, END, INT, ID, CONSTANT, SEMICOLON, COMMA, ASSIGN, INPUT, OUTPUT, IF, ELSE, THEN, ENDIF, DO, WHILE, ENDDO, AND,
-		OR,CASE, COLON, BAR, ADD_OP, SUBT_OP, MULT_OP, GREATER_THAN, GREATER_OR_EQ_TO, EQUAL, NOT, NOT_EQUAL, LESS_THAN, LESS_THAN_OR_EQ_TO,
-		LPAREN, RPAREN, LBRACKET, RBRACKET, OF, SCANNER_ERROR, EOF
-	}
-
 	/**
 	 * Constructor for the Scanner class
 	 * Takes in the Buffered Reader and creates a String Buffer of the program in one line
@@ -388,17 +374,41 @@ public class Scanner {
 	}
 	
 	/**
-	 * This method gets the first remaining token
-	 * @return
+	 * This method gets the current Token
+	 * @return the currentToken that is made
 	 */
 	public Token currentToken()
-	{
-		Token t = null;
+	{		
+		if(this.token == null)
+			this.createToken();
 		
-		return t;
+		return this.token;
 		
 	}
+	/**
+	 * Checks and see if the Token passed in matches the TokenType
+	 * @param TokenType t
+	 * @return true or false
+	 */
+	public boolean matchToken(TokenType t)
+	{
+		if(this.currentToken().token_type == t )
+			return true;
+		
+		return false;
+	}
 	
+	/**
+	 * Creates a new Token
+	 */
+	public void nextToken()
+	{
+		this.createToken();
+	}
+	
+	/**
+	 * 
+	 */
 	public void printTokens()
 	{
 		while(!this.isInputEmpty())
@@ -422,13 +432,14 @@ public class Scanner {
 	public static void main(String[] args) throws FileNotFoundException
 	{
 		
-		Scanner sc = new Scanner(new BufferedReader(new FileReader("bad5.code")));
+		Scanner sc = new Scanner(new BufferedReader(new FileReader("bad1.code")));
 		sc.printTokens();
 		
 	}
 	
 	/**
 	 * Nested Class Token is used to create a Token
+	 * Stores the token type and token value of the associated token
 	 * @author Sid Gowda
 	 * 
 	 *

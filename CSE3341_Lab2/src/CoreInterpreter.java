@@ -15,6 +15,7 @@ public class CoreInterpreter
 	// insert instance variable(s) here, if any
 	
 	private Scanner lex_analyzer = null;
+	private Parser parser = null;
 
 	/**
      * Explicit constructor to perform lexical analysis and parsing
@@ -28,6 +29,14 @@ public class CoreInterpreter
  
     	//Send the input program into the lexical analyzer
     	this.lex_analyzer = new Scanner(program);
+    	this.parser = new Parser(this.lex_analyzer);
+    	
+    	//parse and create the Parse Tree
+    	this.parser.makeParseTree();
+    	
+    	//make semantic checks
+    	
+    	
     	
     }
 
