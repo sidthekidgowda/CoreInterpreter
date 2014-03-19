@@ -389,13 +389,6 @@ public class Scanner {
 	}
 	
 	/**
-	 * This method moves the scanner to to the next token
-	 */
-	public void nextToken()
-	{
-		
-	}
-	/**
 	 * This method gets the first remaining token
 	 * @return
 	 */
@@ -436,7 +429,7 @@ public class Scanner {
 	}
 	
 	/**
-	 * nested Class Token is used to create a Token
+	 * Nested Class Token is used to create a Token
 	 * @author Sid Gowda
 	 * 
 	 *
