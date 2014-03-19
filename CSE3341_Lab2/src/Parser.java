@@ -57,8 +57,9 @@ public class Parser
 		 */
 		public void parse()
 		{
+			
 			if(!scanner.matchToken(TokenType.PROGRAM))
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Input does not have PROGRAM or PROGRAM is formatted incorrectly");
 			
 			this.decl_seq = new DeclSeq();
 			this.decl_seq.parse();
@@ -66,14 +67,14 @@ public class Parser
 			//move the scanner to the next token
 			scanner.nextToken();
 			if(!scanner.matchToken(TokenType.BEGIN))
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Input does not have BEGIN or BEGIN is formatted incorrectly");
 			
 			this.stmt_seq = new StmtSeq();
 			this.stmt_seq.parse();
 			
 			scanner.nextToken();
 			if(!scanner.matchToken(TokenType.END))
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Input does not have END or END is formatted incorrectly");
 			
 			scanner.nextToken();
 			if(!scanner.matchToken(TokenType.EOF))

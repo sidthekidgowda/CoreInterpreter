@@ -392,11 +392,15 @@ public class Scanner {
 	 */
 	public boolean matchToken(TokenType t)
 	{
+		if(this.token == null)
+			this.createToken();
+		
 		if(this.currentToken().token_type == t )
 			return true;
 		
 		return false;
 	}
+	
 	
 	/**
 	 * Creates a new Token
@@ -407,7 +411,7 @@ public class Scanner {
 	}
 	
 	/**
-	 * 
+	 * Method allows you to create and print out Tokens
 	 */
 	public void printTokens()
 	{

@@ -8,13 +8,38 @@ import java.util.ArrayList;
  */
 public class ParseTree {
 
-	private List<List<Node>> parse_t = null;
-	
+	private List<String> non_terminals = null;
+	private List<Integer> children = null;
+	private List<Integer> alternatives = null;
 	
 	/**
-	 * Default Constructor for a parse tree
+	 * Constructor creates the abstract Parse Tree Representation
 	 */
 	public ParseTree()
+	{
+		this.non_terminals = new ArrayList<String>();
+		this.children = new ArrayList<Integer>();
+		this.alternatives = new ArrayList<Integer>();
+	}
+	
+	/**
+	 * add A NonTerminal String type
+	 */
+	public void addNonTerminal()
+	{
+		
+	}
+	/**
+	 * Add Children assoicated to the Grammar
+	 */
+	public void addChildren()
+	{
+		
+	}
+	/**
+	 * 
+	 */
+	public void addAlternativeRuleNumber()
 	{
 		
 	}
