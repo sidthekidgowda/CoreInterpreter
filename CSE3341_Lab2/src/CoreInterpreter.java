@@ -28,7 +28,7 @@ public class CoreInterpreter
  
     	//Send the input program into the lexical analyzer
     	this.lex_analyzer = new Scanner(program);
-    	this.lex_analyzer.printString();
+    	
     }
 
     /**
