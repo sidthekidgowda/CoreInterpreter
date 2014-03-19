@@ -94,7 +94,7 @@ public class Scanner {
 			token_made = true;
 		}
 		
-		while(!token_made)
+		if(!token_made)
 		{
 			//Ignore Empty Spaces, tabs, or new lines
 			while(this.input.charAt(0) == ' ' || this.input.charAt(0)=='\t')
@@ -264,7 +264,6 @@ public class Scanner {
 					
 				}
 			}
-			token_made = true;
 		}
 		
 	}
