@@ -372,6 +372,13 @@ public class Scanner {
 		else
 			return this.token.token_type.toString();
 	}
+	/**
+	 * Gets the Value of the Token
+	 */
+	public String getTokenValue()
+	{
+		return this.token.token_value;
+	}
 	
 	/**
 	 * This method gets the current Token
@@ -400,7 +407,14 @@ public class Scanner {
 		
 		return false;
 	}
-	
+	/**
+	 * get TokenType gets the token type
+	 * @return the token type of the Token
+	 */
+	public TokenType getTokenType()
+	{
+		return this.currentToken().token_type;
+	}
 	
 	/**
 	 * Creates a new Token

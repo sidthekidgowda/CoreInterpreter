@@ -9,110 +9,136 @@
 public class Parser 
 {
 	private Scanner scanner = null;
-	private ParseTree pt = null;
+	private ParseTree parse_tree = null;
+	private static int nextRow;//stores the global variable for the next available row
+
+	
+	/**
+	 * static constructor initializes the global variable nextRow
+	 */
+	static{
+		Parser.nextRow = 0;
+	}
 	
 	
 	/**
 	 * Constructor for the Parser
 	 * Takes a Scanner reference so it can ask for Tokens
-	 * @param s
+	 * @param Scanner s
 	 */
 	public Parser(Scanner s)
 	{
 		this.scanner = s;
-		this.pt = new ParseTree();
+		this.parse_tree = new ParseTree();
+		//create the first token for the lookahead
+		this.scanner.nextToken();
 	}
 	/**
 	 * method makeParseTree creates a ParseTree object
 	 */
 	public void makeParseTree()
 	{
-		Node p = new Program();
-		p.parse();
+		
+		int store_value = this.program();
+	}
+	/**
+	 * Main Method test
+	 * @param args
+	 */
+	public static void main(String[] args)
+	{
+		
 	}
 	
-	/**
-	 * Private Class Program performs a
-	 * @author Sid Gowda
-	 * 
-	 *
-	 */
-	private class Program implements Node
+	private int program()
+	{
+		int myRow = this.nextRow;
+		nextRow++;
+		this.parse_tree.addNonTerminal(NonTerminals.PROG);
+		this.parse_tree.addAlternativeNumber(1);
+		
+		//match Program Token
+		if(!this.scanner.matchToken(TokenType.PROGRAM))
+			throw new IllegalArgumentException("Input does not have the word \"program\"");
+	
+	
+		this.scanner.nextToken();
+		
+		this.parse_tree.addChildren(myRow, this.declSeq(), "non-terminal");
+		
+		//match BEGIN token
+		if(!this.scanner.matchToken(TokenType.BEGIN))
+			throw new IllegalArgumentException("Input does not have the word \"begin\"");
+		
+		
+		this.parse_tree.addChildren(myRow, this.stmtSeq(), "non-terminal");
+		
+		//match the END token
+		if(!this.scanner.matchToken(TokenType.END))
+			throw new IllegalArgumentException("Input does not have the word \"end\"");
+		
+		this.scanner.nextToken();
+		//match the EOF token
+		if(!scanner.matchToken(TokenType.EOF))
+			throw new IllegalArgumentException("EOF token not passed");
+		
+		return myRow;
+	
+	
+	}
+	private int declSeq()
+	{
+		int declRow = this.decl();
+		Parser.nextRow++;
+		
+		this.parse_tree.addNonTerminal(NonTerminals.DECL_SEQ);
+	
+		
+		if(this.scanner.getTokenType() == TokenType.BEGIN)
+		{
+			this.parse_tree.addAlternativeNumber(1);
+		}
+		if(this.scanner.getTokenType() == TokenType.INT)
+		{
+			this.parse_tree.addAlternativeNumber(2);
+		}
+		
+		return 0;
+	}
+	private int decl()
 	{
 		
-		private Node decl_seq = null;
-		private Node stmt_seq = null;
-		private int alternative = 1;
+		//match INT token
+		if(!this.scanner.matchToken(TokenType.INT))
+			throw new IllegalArgumentException("Input does not have the word \"int\"");
+		
+		int id_list = this.idList();
+		
+		return id_list;
+	}
+	private int idList()
+	{
 		
 		
-		/**
-		 * Default Constructor
-		 */
-		private Program()
+		//match ID token
+		if(!this.scanner.matchToken(TokenType.ID))
+			throw new IllegalArgumentException("Input does not have an identifier in the DeclSeq");
+		
+		if(this.scanner.currentToken() == TokenType.COMMA)
 		{
-			
+			int this.idList();
 		}
-		/**
-		 * Parse the Program non-terminal and store in the Parse Tree
-		 */
-		public void parse()
-		{
-			
-			if(!scanner.matchToken(TokenType.PROGRAM))
-				throw new IllegalArgumentException("Input does not have PROGRAM or PROGRAM is formatted incorrectly");
-			
-			this.decl_seq = new DeclSeq();
-			this.decl_seq.parse();
-			
-			//move the scanner to the next token
-			scanner.nextToken();
-			if(!scanner.matchToken(TokenType.BEGIN))
-				throw new IllegalArgumentException("Input does not have BEGIN or BEGIN is formatted incorrectly");
-			
-			this.stmt_seq = new StmtSeq();
-			this.stmt_seq.parse();
-			
-			scanner.nextToken();
-			if(!scanner.matchToken(TokenType.END))
-				throw new IllegalArgumentException("Input does not have END or END is formatted incorrectly");
-			
-			scanner.nextToken();
-			if(!scanner.matchToken(TokenType.EOF))
-				throw new IllegalArgumentException();
-			
-		}
+		
 	}
-	private class DeclSeq implements Node
+	private int stmtSeq()
 	{
-		private DeclSeq()
-		{
-			
-		}
-		public void parse()
-		{
-			
-		}
+		return 0;
 	}
-	private class StmtSeq implements Node
-	{
-		private StmtSeq()
-		{
-			
-		}
-		public void parse()
-		{
-			
-		}
-	}
-	private class Stmt implements Node
-	{
-		private Stmt()
-		{
-			
-		}
-		public void parse()
-		{
-			
-		}
-	}
+	
+	
+	
+	
+	
+	
+	
 }
