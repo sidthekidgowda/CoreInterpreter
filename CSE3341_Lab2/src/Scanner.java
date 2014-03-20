@@ -424,6 +424,7 @@ public class Scanner {
 		this.createToken();
 	}
 	
+	
 	/**
 	 * Method allows you to create and print out Tokens
 	 */
@@ -441,6 +442,7 @@ public class Scanner {
 		System.out.println();
 		
 	}
+	
 	
 	/**
 	 * Test Scanner input main method - delete after
