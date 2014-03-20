@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+
 
 /**
  * Class Parser creates a Parse Tree with a given Scanner to create Tokens
@@ -35,7 +39,7 @@ public class Parser
 		this.scanner = s;
 		this.parse_tree = new ParseTree(this.scanner);
 		//create the first token for the lookahead
-		this.scanner.nextToken();
+		
 	}
 	/**
 	 * method makeParseTree creates a ParseTree object
@@ -57,14 +61,8 @@ public class Parser
 	{
 		Parser.Const_index-=2;
 	}
-	/**
-	 * Main Method test
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		
-	}
+	
+	
 	/**
 	 * Parses the Program Method
 	 * <prog> ::= program <decl-seq> begin <stmt-seq> end
@@ -228,6 +226,16 @@ public class Parser
 		return 0;
 	}
 	
+	/**
+	 * Main Method test
+	 * @param args
+	 * @throws FileNotFoundException 
+	 */
+	public static void main(String[] args) throws FileNotFoundException
+	{
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("t1.code"))));
+		p1.makeParseTree();
+	}
 	
 	
 	

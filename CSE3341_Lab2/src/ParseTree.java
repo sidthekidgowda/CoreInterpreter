@@ -22,14 +22,15 @@ import java.util.HashMap;
 public class ParseTree {
 
 	private List<NonTerminals> non_terminals = null;
-	private List<List<Integer>> children = null;
+
 	private static List<Integer> child = null;
 	private static int nextRow;
 	
-	private List<Integer> alternatives = null;
+	private Map<Integer, List<Integer>> children = null;
+	private Map<Integer, Integer> alternatives = null;
 	private Map<Integer, String> symbol_table = null;
 	private Map<Integer, String> constants_table =null;
-	private List<Integer> constants = null;
+	
 	private Scanner scanner = null;
 	
 
@@ -38,9 +39,9 @@ public class ParseTree {
 	 */
 	public ParseTree(Scanner s)
 	{
-		this.non_terminals = new ArrayList<NonTerminals>(5000);
-		this.children = new ArrayList<List<Integer>>(5000);
-		this.alternatives = new ArrayList<Integer>(5000);
+		this.non_terminals = new ArrayList<NonTerminals>();
+		this.children = new HashMap<Integer,List<Integer>>();
+		this.alternatives = new HashMap<Integer, Integer>();
 		this.symbol_table = new HashMap<Integer,String>();
 		this.constants_table = new HashMap<Integer, String>();
 		this.scanner = s;
@@ -65,7 +66,7 @@ public class ParseTree {
 	 */
 	public void addAlternativeNumber(int row_number, int rule)
 	{
-		this.alternatives.add(row_number, rule);
+		this.alternatives.put(row_number, rule);
 	}
 	
 	
@@ -93,11 +94,15 @@ public class ParseTree {
 		if(ParseTree.nextRow != myRow)
 			ParseTree.clearChild();
 		
+		//remove if the key is inside the hash map
+		if(this.children.containsKey(myRow))
+			this.children.remove(myRow);
+		
 		switch(s)
 		{
 		case "id":
 			ParseTree.child.add(value);
-			this.children.add(myRow, ParseTree.child);
+			this.children.put(myRow, ParseTree.child);
 			this.symbol_table.put(value, this.scanner.getTokenValue());
 			//decrement the ID index
 			Parser.decrementIDIndexBy2();
@@ -105,14 +110,15 @@ public class ParseTree {
 		
 		case "constant":
 			ParseTree.child.add(value);
-			this.children.add(myRow, ParseTree.child);
+			
+			this.children.put(myRow, ParseTree.child);
 			this.constants_table.put(value, this.scanner.getTokenValue());
+			Parser.decrementConstIndexBy2();
 			break;
 		
 		default://non-terminal
-			ParseTree.child.add(value);
-			
-			this.children.add(myRow, ParseTree.child);
+			ParseTree.child.add(value);	
+			this.children.put(myRow, ParseTree.child);
 			
 			break;
 		}
