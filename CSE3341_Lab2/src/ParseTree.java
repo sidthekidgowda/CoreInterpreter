@@ -8,8 +8,10 @@ import java.util.HashMap;
  * List of List of Integers for children
  * and List of Integers for alternatives
  * 
- * Each Row in the Parse Table will be looked as List<nonterminals>, List<Alternatives>, 
- * and List<List<Children>>
+ * Each Row in the Parse Table will be represented by a List<nonterminal>1, Alternatives<Row, Alternative1>, 
+ * and Map<Row Number, List<Children1>>
+ * 
+ * NonTerminals, Alternatives, Children of NonTerminal
  * 
  * Symbol Table will hold the values of the Identifiers
  * 
@@ -47,6 +49,9 @@ public class ParseTree {
 		this.scanner = s;
 	}
 	
+	/**
+	 * Constructor creates the static elements
+	 */
 	static
 	{
 		ParseTree.child = new ArrayList<Integer>();
@@ -94,9 +99,9 @@ public class ParseTree {
 		if(ParseTree.nextRow != myRow)
 			ParseTree.clearChild();
 		
-		//remove if the key is inside the hash map
+		//remove if the key is inside the hash map, remove and add to the child List 
 		if(this.children.containsKey(myRow))
-			this.children.remove(myRow);
+			ParseTree.child = this.children.remove(myRow);
 		
 		switch(s)
 		{

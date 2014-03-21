@@ -40,7 +40,6 @@ public class Scanner {
 		//defensive copying
 		this.program = new BufferedReader(program);
 		
-		
 		/*
 		 * Move all input into one line
 		 */
@@ -452,7 +451,7 @@ public class Scanner {
 	public static void main(String[] args) throws FileNotFoundException
 	{
 		
-		Scanner sc = new Scanner(new BufferedReader(new FileReader("bad1.code")));
+		Scanner sc = new Scanner(new BufferedReader(new FileReader("t1.code")));
 		sc.printTokens();
 		
 	}
@@ -464,6 +463,7 @@ public class Scanner {
 	 * 
 	 *
 	 */
+	
 	
 	private class Token
 	{
