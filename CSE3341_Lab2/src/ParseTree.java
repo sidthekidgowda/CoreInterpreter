@@ -110,14 +110,5 @@ public class ParseTree {
 		
 	}
 	
-	public static void main(String[] args)
-	{
-		Scanner s = new Scanner(new BufferedReader(new StringReader("program int x, y, xy; begin")));
-		ParseTree t = new ParseTree(s);
-		
-		t.addNonTerminal(0, NonTerminals.PROG);
-		t.addChildren(0, 1, "non-terminal");
-		t.addChildren(0, 2, "non-terminal");
-	}
 
 }

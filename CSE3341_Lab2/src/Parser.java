@@ -346,15 +346,6 @@ public class Parser
 		return 0;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * Main Method test
 	 * @param args
