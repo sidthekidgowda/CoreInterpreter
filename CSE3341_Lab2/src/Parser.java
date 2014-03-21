@@ -42,10 +42,7 @@ public class Parser
 		//create the first token for the lookahead
 		
 	}
-	public static int getParseRow()
-	{
-		return Parser.nextRow;
-	}
+	
 	public static void decrementIDIndexBy2()
 	{
 		Parser.ID_index-=2;
@@ -59,16 +56,17 @@ public class Parser
 	 */
 	public void makeParseTree()
 	{
-		int store_value = this.program();
+		this.program();
 	}
 	
 	/**
 	 * Parses the Program Method
 	 * <prog> ::= program <decl-seq> begin <stmt-seq> end
-	 * One Lookahead Token coming In
-	 * @return the row number
+	 * One Lookahead Token coming in.
+	 * Incoming Token (PROGRAM)
+	 * 
 	 */
-	private int program()
+	private void program()
 	{
 		int myRow = Parser.nextRow;
 		nextRow++;
@@ -81,10 +79,10 @@ public class Parser
 	
 	
 		this.scanner.nextToken();
-		int declRow = this.declSeq();
+		int declSeq = this.declSeq();
 		
-		this.parse_tree.addChildren(myRow, declRow, "non-terminal");
-		
+		this.parse_tree.addChildren(myRow, declSeq, "non-terminal");
+		/*
 		//match BEGIN token
 		if(!this.scanner.matchToken(TokenType.BEGIN))
 			throw new IllegalArgumentException("Input does not have the word \"begin\"");
@@ -101,16 +99,14 @@ public class Parser
 		//match the EOF token
 		if(!scanner.matchToken(TokenType.EOF))
 			throw new IllegalArgumentException("EOF token not passed");
-		
-		return myRow;
-	
-	
+		*/
 	}
 	/**
 	 * Parse the Decl Seq method
 	 * <decl-seq> ::= <decl>|<decl><decl-seq>
 	 * 
 	 * One Lookahead Token coming in, One Lookahead Token coming out
+	 * Incoming Token (INT), Outgoing Token (BEGIN or INT)
 	 * @return the row number
 	 */
 	private int declSeq()
@@ -130,7 +126,6 @@ public class Parser
 		if(this.scanner.getTokenType() == TokenType.INT)
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 2);
-			
 			int declSeq = declSeq();
 			this.parse_tree.addChildren(myRow, declSeq, "non-terminal");
 		
@@ -142,6 +137,7 @@ public class Parser
 	 * <decl> ::= int <id-list>;
 	 * 
 	 * One Lookahead Token coming in, One Lookahead Token coming out
+	 * Incoming Token(INT), Outgoing Token (BEGIN or INT)
 	 * @return the row number
 	 */
 	private int decl()
@@ -172,7 +168,8 @@ public class Parser
 	 * <id-list> ::= id | id, <id-list>
 	 * 
 	 * One Lookahead Token coming in, One Lookahead Token coming out
-	 * @return
+	 * Incoming Token(ID), Outgoing Token(BEGIN)
+	 * @return myRow
 	 */
 	private int idList()
 	{
@@ -365,7 +362,7 @@ public class Parser
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x, y, xy;"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x, y, xy; begin"))));
 		p1.makeParseTree();
 	}
 	

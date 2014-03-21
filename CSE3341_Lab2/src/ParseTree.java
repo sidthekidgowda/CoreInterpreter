@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -24,10 +26,6 @@ import java.util.HashMap;
 public class ParseTree {
 
 	private List<NonTerminals> non_terminals = null;
-
-	private static List<Integer> child = null;
-	private static int nextRow;
-	
 	private Map<Integer, List<Integer>> children = null;
 	private Map<Integer, Integer> alternatives = null;
 	private Map<Integer, String> symbol_table = null;
@@ -35,7 +33,6 @@ public class ParseTree {
 	
 	private Scanner scanner = null;
 	
-
 	/**
 	 * Constructor creates the abstract Parse Tree Representation
 	 */
@@ -49,14 +46,6 @@ public class ParseTree {
 		this.scanner = s;
 	}
 	
-	/**
-	 * Constructor creates the static elements
-	 */
-	static
-	{
-		ParseTree.child = new ArrayList<Integer>();
-		ParseTree.nextRow = Parser.getParseRow();
-	}
 	
 	/**
 	 * Add a NonTerminal type to the ParseTree at the specified position
@@ -93,48 +82,42 @@ public class ParseTree {
 		 * 	add to the List of List of Integers, this is a non-terminal
 		 */
 		
-	
-		//if the ParseTree index is not lined up with the index of the Parser,
-		//Clear the List
-		if(ParseTree.nextRow != myRow)
-			ParseTree.clearChild();
+
+		//check and see if arrayList reference is there
+		if(this.children.get(myRow) == null)
+			this.children.put(myRow, new ArrayList<Integer>());
 		
-		//remove if the key is inside the hash map, remove and add to the child List 
-		if(this.children.containsKey(myRow))
-			ParseTree.child = this.children.remove(myRow);
 		
 		switch(s)
 		{
 		case "id":
-			ParseTree.child.add(value);
-			this.children.put(myRow, ParseTree.child);
+			this.children.get(myRow).add(value);
 			this.symbol_table.put(value, this.scanner.getTokenValue());
 			//decrement the ID index
 			Parser.decrementIDIndexBy2();
 			break;
-		
 		case "constant":
-			ParseTree.child.add(value);
-			
-			this.children.put(myRow, ParseTree.child);
+			this.children.get(myRow).add(value);
 			this.constants_table.put(value, this.scanner.getTokenValue());
 			Parser.decrementConstIndexBy2();
 			break;
 		
 		default://non-terminal
-			ParseTree.child.add(value);	
-			this.children.put(myRow, ParseTree.child);
-			
+			this.children.get(myRow).add(value);
 			break;
 		}
 		
-		//increment 
-		ParseTree.nextRow++;
 		
 	}
-	private static void clearChild()
+	
+	public static void main(String[] args)
 	{
-		ParseTree.child.clear();
+		Scanner s = new Scanner(new BufferedReader(new StringReader("program int x, y, xy; begin")));
+		ParseTree t = new ParseTree(s);
+		
+		t.addNonTerminal(0, NonTerminals.PROG);
+		t.addChildren(0, 1, "non-terminal");
+		t.addChildren(0, 2, "non-terminal");
 	}
 
 }
