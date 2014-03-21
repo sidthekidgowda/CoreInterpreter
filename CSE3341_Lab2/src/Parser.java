@@ -75,17 +75,18 @@ public class Parser
 		
 		//match Program Token
 		if(!this.scanner.matchToken(TokenType.PROGRAM))
-			throw new IllegalArgumentException("Input does not have the word \"program\"");
+			throw new IllegalArgumentException("Error: expecting the word \"program\"");
 	
 	
 		this.scanner.nextToken();
 		int declSeq = this.declSeq();
 		
 		this.parse_tree.addChildren(myRow, declSeq, "non-terminal");
+		
 		/*
 		//match BEGIN token
 		if(!this.scanner.matchToken(TokenType.BEGIN))
-			throw new IllegalArgumentException("Input does not have the word \"begin\"");
+			throw new IllegalArgumentException("Error: expecting the word \"begin\"");
 		
 		this.scanner.nextToken();
 		int stmtSeq = this.stmtSeq();
@@ -93,12 +94,12 @@ public class Parser
 		
 		//match the END token
 		if(!this.scanner.matchToken(TokenType.END))
-			throw new IllegalArgumentException("Input does not have the word \"end\"");
+			throw new IllegalArgumentException("Error: expecting the word \"end\"");
 		
 		this.scanner.nextToken();
 		//match the EOF token
 		if(!scanner.matchToken(TokenType.EOF))
-			throw new IllegalArgumentException("EOF token not passed");
+			throw new IllegalArgumentException("Error: EOF token not passed");
 		*/
 	}
 	/**
@@ -147,7 +148,7 @@ public class Parser
 		
 		//match INT token
 		if(!this.scanner.matchToken(TokenType.INT))
-			throw new IllegalArgumentException("Input does not have the word \"int\"");
+			throw new IllegalArgumentException("Error: expecting the word \"int\"");
 		
 		this.scanner.nextToken();
 
@@ -158,7 +159,7 @@ public class Parser
 		
 		//match SemiColon Token
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Input does not have a semicolon after the ID List");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
 		
 		this.scanner.nextToken();
 		return myRow;
@@ -178,9 +179,11 @@ public class Parser
 		
 		//match ID token
 		if(!this.scanner.matchToken(TokenType.ID))
-			throw new IllegalArgumentException("Input does not have an identifier in the DeclSeq");
+			throw new IllegalArgumentException("Error: expecting an identifier");
 		
 		this.parse_tree.addNonTerminal(myRow, NonTerminals.ID_LIST);
+		this.parse_tree.addAlternativeNumber(myRow, 1);
+		this.parse_tree.addChildren(myRow, Parser.ID_index, "id");
 		this.scanner.nextToken();
 		
 		if(this.scanner.getTokenType() == TokenType.COMMA)
@@ -188,15 +191,12 @@ public class Parser
 			//call next Token
 			this.scanner.nextToken();
 			int id_list = this.idList();
+			//change the alternative number to the second alternative
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			this.parse_tree.addChildren(myRow, id_list, "non-terminal");
 		}
-		else
-		{
-			this.parse_tree.addAlternativeNumber(myRow, 1);
-			//pass in the ID
-			this.parse_tree.addChildren(myRow, Parser.ID_index, "id");
-		}
+		
+		
 		return myRow;
 		
 	}
@@ -292,6 +292,7 @@ public class Parser
 	 * <assign> ::= id:=<expr>;
 	 * 
 	 * One Lookahead Token coming in, One Lookahead Token coming out
+	 * 
 	 * @return myRow
 	 */
 	private int assign()

@@ -49,26 +49,28 @@ public class ParseTree {
 	
 	/**
 	 * Add a NonTerminal type to the ParseTree at the specified position
-	 * @param NonTerminal 
+	 * @param row_number
+	 * @param nt is a NonTerminal type added to the list of NonTerminals
 	 */
 	public void addNonTerminal(int row_number, NonTerminals nt)
 	{
 		this.non_terminals.add(row_number, nt);
 	}
 	/**
-	 * Adds the Alternative Rule Number to the List
+	 * addAlternativeNumber uses the row_number as the key and the rule as the value
+	 * @param row_number
+	 * @param rule
 	 */
 	public void addAlternativeNumber(int row_number, int rule)
 	{
 		this.alternatives.put(row_number, rule);
 	}
 	
-	
 	/**
 	 * Add child to the List of List of Integers
-	 * @param myRow
-	 * @param value
-	 * @param s
+	 * @param myRow - tells which row to access in the ParseTree Table
+	 * @param value of the child
+	 * @param s - tells if the child is a non-terminal, identifier, or a constant
 	 */
 	public void addChildren(int myRow, int value, String s)
 	{
