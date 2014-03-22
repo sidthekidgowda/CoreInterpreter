@@ -216,6 +216,10 @@ public class Parser
 		
 		if(this.scanner.getTokenType() == TokenType.COMMA)
 		{
+			//match the comma
+			if(!this.scanner.matchToken(TokenType.COMMA))
+				throw new IllegalArgumentException("Error: expecting a comma \",\"");
+			
 			//call next Token
 			this.scanner.nextToken();
 			int id_list = this.idList();
@@ -869,6 +873,7 @@ public class Parser
 			
 			this.parse_tree.addAlternativeNumber(myRow, 6);
 		}
+		this.scanner.nextToken();
 		
 		return myRow;
 	}
@@ -905,6 +910,7 @@ public class Parser
 			int expr = this.expr();
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			this.parse_tree.addChild(myRow, expr, "non-terminal");
+			
 		}
 		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
 		{
@@ -913,9 +919,11 @@ public class Parser
 				throw new IllegalArgumentException("Error: expecting a subtraction operation \"-\"");
 			
 			this.scanner.nextToken();
+			
 			int expr = this.expr();
 			this.parse_tree.addAlternativeNumber(myRow, 3);
 			this.parse_tree.addChild(myRow, expr, "non-terminal");
+			
 		}
 		else
 		{
@@ -954,10 +962,11 @@ public class Parser
 				throw new IllegalArgumentException("Error: expecting a multiplication operation \"*\"");
 			
 			this.scanner.nextToken();
+	
 			int term = this.term();
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			this.parse_tree.addChild(myRow, term, "non-terminal");
-			
+		
 		}
 		else
 		{
@@ -978,7 +987,7 @@ public class Parser
 	 * @return
 	 */
 	private int factor()
-	{
+	{	
 		int myRow = Parser.nextRow;
 		Parser.nextRow++;
 		this.parse_tree.addNonTerminal(NonTerminals.FACTOR);
@@ -989,9 +998,9 @@ public class Parser
 			if(!this.scanner.matchToken(TokenType.CONSTANT))
 				throw new IllegalArgumentException("Error: expecting a constant");
 			
-			this.scanner.nextToken();
 			this.parse_tree.addAlternativeNumber(myRow, 1);
 			this.parse_tree.addChild(myRow, Parser.Const_index, "constant");
+			this.scanner.nextToken();
 			
 		}
 		else if(this.scanner.getTokenType() == TokenType.ID)
@@ -1000,9 +1009,9 @@ public class Parser
 			if(!this.scanner.matchToken(TokenType.ID))
 				throw new IllegalArgumentException("Error: expecting an identifier");
 			
-			this.scanner.nextToken();
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			this.parse_tree.addChild(myRow, Parser.ID_index, "identifier");
+			this.scanner.nextToken();
 		}
 		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
 		{
@@ -1011,11 +1020,20 @@ public class Parser
 				throw new IllegalArgumentException("Error: expecting a minus \"-\"");
 			
 			this.scanner.nextToken();
-			
-			int factor = this.factor();
-			
-			this.parse_tree.addAlternativeNumber(myRow, 3);
-			this.parse_tree.addChild(myRow, factor, "non-terminal");
+			//make sure the next token must consist of a const, id or (
+			if(this.scanner.getTokenType() == TokenType.CONSTANT 
+					|| this.scanner.getTokenType() == TokenType.ID
+					|| this.scanner.getTokenType() == TokenType.LPAREN)
+			{
+				int factor = this.factor();
+				
+				this.parse_tree.addAlternativeNumber(myRow, 3);
+				this.parse_tree.addChild(myRow, factor, "non-terminal");
+			}
+			else
+			{
+				throw new IllegalArgumentException("Error: A Constant, Identifier or a Left Parenthesis must be followed after a minus sign");
+			}
 		}
 		else if(this.scanner.getTokenType() == TokenType.LPAREN) //Left Parenthesis
 		{
@@ -1035,8 +1053,12 @@ public class Parser
 				throw new IllegalArgumentException("Error: expecting a right parenthesis \")\"");
 			
 			this.scanner.nextToken();
+				
 		}
+		int x = 10;
+		x = 10 - x - -15;
 		return myRow;
+		
 	}
 	
 	/**
@@ -1046,7 +1068,7 @@ public class Parser
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("t1.code"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x; begin x := ((x - -15 * -15)); end"))));
 		p1.makeParseTree();
 	}
 	

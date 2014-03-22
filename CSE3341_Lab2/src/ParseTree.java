@@ -86,9 +86,13 @@ public class ParseTree {
 		{
 		case "id":
 			this.children.get(myRow).add(value);
-			this.symbol_table.put(value, this.scanner.getTokenValue());
-			//decrement the ID index
-			Parser.decrementIDIndexBy2();
+			//make sure you don't create duplicate entries in the symbol table
+			if(!this.symbol_table.containsValue(this.scanner.getTokenValue()))
+			{
+				this.symbol_table.put(value, this.scanner.getTokenValue());
+				//decrement the ID index
+				Parser.decrementIDIndexBy2();
+			}
 			break;
 		case "constant":
 			this.children.get(myRow).add(value);

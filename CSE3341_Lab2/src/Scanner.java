@@ -188,16 +188,17 @@ public class Scanner {
 					this.input.deleteCharAt(0);
 					break;
 				case '-':
-					//check and see if this is the end of file character
-					if(this.input.charAt(1) == '1')
-						throw new IllegalArgumentException("EOF character encountered in the middle of the program");
 					this.token = new Token(this.input.charAt(0), TokenType.SUBT_OP);
+					this.input.deleteCharAt(0);
+					break;
 				case '*':
 					this.token = new Token(this.input.charAt(0), TokenType.MULT_OP);
 					this.input.deleteCharAt(0);
 					break;
 				case '|':
 					this.token = new Token(this.input.charAt(0), TokenType.BAR);
+					this.input.deleteCharAt(0);
+					break;
 				case ':':
 					make_token.append(this.input.charAt(0));
 					this.input.deleteCharAt(0);
