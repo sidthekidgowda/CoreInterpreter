@@ -188,6 +188,9 @@ public class Scanner {
 					this.input.deleteCharAt(0);
 					break;
 				case '-':
+					//check and see if this is the end of file character
+					if(this.input.charAt(1) == '1')
+						throw new IllegalArgumentException("EOF character encountered in the middle of the program");
 					this.token = new Token(this.input.charAt(0), TokenType.SUBT_OP);
 				case '*':
 					this.token = new Token(this.input.charAt(0), TokenType.MULT_OP);
@@ -371,13 +374,6 @@ public class Scanner {
 		else
 			return this.token.token_type.toString();
 	}
-	/**
-	 * Gets the Value of the Token
-	 */
-	public String getTokenValue()
-	{
-		return this.token.token_value;
-	}
 	
 	/**
 	 * This method gets the current Token
@@ -416,6 +412,16 @@ public class Scanner {
 	}
 	
 	/**
+	 * Gets the Value of the Token
+	 * @return Token Value of the Token
+	 */
+	public String getTokenValue()
+	{
+		return this.token.token_value;
+	}
+	
+	
+	/**
 	 * Creates a new Token
 	 */
 	public void nextToken()
@@ -442,7 +448,6 @@ public class Scanner {
 		
 	}
 	
-	
 	/**
 	 * Test Scanner input main method - delete after
 	 * @param args
@@ -463,7 +468,6 @@ public class Scanner {
 	 * 
 	 *
 	 */
-	
 	
 	private class Token
 	{

@@ -29,6 +29,8 @@ public class CoreInterpreter
  
     	//Send the input program into the lexical analyzer
     	this.lex_analyzer = new Scanner(program);
+    	
+    	//create the LL(1) Parser and send in the scanner reference
     	this.parser = new Parser(this.lex_analyzer);
     	
     	//parse and create the Parse Tree

@@ -1,5 +1,3 @@
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -7,17 +5,15 @@ import java.util.HashMap;
 
 /**
  * ParseTree represented by a Parse Table with a List of Strings for Non-Terminals
- * List of List of Integers for children
- * and List of Integers for alternatives
  * 
- * Each Row in the Parse Table will be represented by a List<nonterminal>1, Alternatives<Row, Alternative1>, 
- * and Map<Row Number, List<Children1>>
+ * The Parse Table will be represented by a List<Non Terminals>, Map of Alternatives<Key = Row Number, Value = Alternative Rule No>, 
+ * and Map<Key = Row Number, Value = List<Children of Row Number>>
  * 
  * NonTerminals, Alternatives, Children of NonTerminal
  * 
  * Symbol Table will hold the values of the Identifiers
  * 
- * List of Constants will hold the values of the Constants
+ * Constants Table will hold the values of the Constants
  * 
  * @author Sid Gowda
  * @version 3/17/2014
@@ -45,16 +41,13 @@ public class ParseTree {
 		this.constants_table = new HashMap<Integer, String>();
 		this.scanner = s;
 	}
-	
-	
 	/**
 	 * Add a NonTerminal type to the ParseTree at the specified position
-	 * @param row_number
 	 * @param nt is a NonTerminal type added to the list of NonTerminals
 	 */
-	public void addNonTerminal(int row_number, NonTerminals nt)
+	public void addNonTerminal(NonTerminals nt)
 	{
-		this.non_terminals.add(row_number, nt);
+		this.non_terminals.add(nt);
 	}
 	/**
 	 * addAlternativeNumber uses the row_number as the key and the rule as the value
@@ -72,7 +65,7 @@ public class ParseTree {
 	 * @param value of the child
 	 * @param s - tells if the child is a non-terminal, identifier, or a constant
 	 */
-	public void addChildren(int myRow, int value, String s)
+	public void addChild(int myRow, int value, String s)
 	{
 		/**
 		 * if the string is "id", add to a symbol table, this is a identifier
@@ -84,11 +77,9 @@ public class ParseTree {
 		 * 	add to the List of List of Integers, this is a non-terminal
 		 */
 		
-
 		//check and see if arrayList reference is there
 		if(this.children.get(myRow) == null)
 			this.children.put(myRow, new ArrayList<Integer>());
-		
 		
 		switch(s)
 		{
@@ -103,7 +94,6 @@ public class ParseTree {
 			this.constants_table.put(value, this.scanner.getTokenValue());
 			Parser.decrementConstIndexBy2();
 			break;
-		
 		default://non-terminal
 			this.children.get(myRow).add(value);
 			break;
