@@ -16,6 +16,7 @@ public class CoreInterpreter
 	
 	private Scanner lex_analyzer = null;
 	private Parser parser = null;
+	private SemanticChecker sc = null;
 
 	/**
      * Explicit constructor to perform lexical analysis and parsing
@@ -37,8 +38,8 @@ public class CoreInterpreter
     	this.parser.makeParseTree();
     	
     	//make semantic checks
-    	
-    	
+    	this.sc = new SemanticChecker(this.parser.getParseTree());
+    	this.sc.check();
     	
     }
 

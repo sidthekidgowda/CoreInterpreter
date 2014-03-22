@@ -41,6 +41,7 @@ public class ParseTree {
 		this.constants_table = new HashMap<Integer, String>();
 		this.scanner = s;
 	}
+	
 	/**
 	 * Add a NonTerminal type to the ParseTree at the specified position
 	 * @param nt is a NonTerminal type added to the list of NonTerminals

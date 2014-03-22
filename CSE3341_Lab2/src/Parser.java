@@ -63,6 +63,13 @@ public class Parser
 	{
 		this.program();
 	}
+	/**
+	 * @return the reference of the ParseTree
+	 */
+	public ParseTree getParseTree()
+	{
+		return this.parse_tree;
+	}
 	
 	/**
 	 * Parses the Program Method
