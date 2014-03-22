@@ -1055,8 +1055,7 @@ public class Parser
 			this.scanner.nextToken();
 				
 		}
-		int x = 10;
-		x = 10 - x - -15;
+		
 		return myRow;
 		
 	}
@@ -1068,7 +1067,7 @@ public class Parser
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x; begin x := ((x - -15 * -15)); end"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("t1.code"))));
 		p1.makeParseTree();
 	}
 	
