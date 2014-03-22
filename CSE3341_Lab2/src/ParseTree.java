@@ -61,6 +61,17 @@ public class ParseTree {
 	}
 	
 	/**
+	 * This checks and see if an identifier is declared more than once in the DeclSeq
+	 * @return true or false
+	 */
+	public boolean containsMutlipleDeclaredVariable()
+	{
+		if(this.symbol_table.containsValue(this.scanner.getTokenValue()))
+			return true;
+		return false;
+	}
+	
+	/**
 	 * Add child to the List of List of Integers
 	 * @param myRow - tells which row to access in the ParseTree Table
 	 * @param value of the child

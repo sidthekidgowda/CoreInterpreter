@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
 
-
 /**
  * Class Parser creates a Parse Tree with a given Scanner to create Tokens
  * 
@@ -18,6 +17,7 @@ public class Parser
 	private static int nextRow;//stores the global variable for the next available row
 	private static int ID_index; //used to reference ID symbol table
 	private static int Const_index;//used to reference Constant symbol table
+	private boolean decl_seq;//used for semantic checking of multiple declared variables
 
 	
 	/**
@@ -29,7 +29,6 @@ public class Parser
 		Parser.Const_index = -2;
 	}
 	
-	
 	/**
 	 * Constructor for the Parser
 	 * Takes a Scanner reference so it can ask for Tokens
@@ -39,7 +38,7 @@ public class Parser
 	{
 		this.scanner = s;
 		this.parse_tree = new ParseTree(this.scanner);
-		//create the first token for the lookahead
+		this.decl_seq = true;
 		
 	}
 	/**
@@ -57,7 +56,7 @@ public class Parser
 		Parser.Const_index-=2;
 	}
 	/**
-	 * method makeParseTree creates a ParseTree object
+	 * method makeParseTree() creates a ParseTree object
 	 */
 	public void makeParseTree()
 	{
@@ -98,6 +97,8 @@ public class Parser
 		
 		this.parse_tree.addChild(myRow, declSeq, "non-terminal");
 		
+		//
+		this.decl_seq = false;
 		//match BEGIN token
 		if(!this.scanner.matchToken(TokenType.BEGIN))
 			throw new IllegalArgumentException("Error: expecting the word \"begin\"");
@@ -210,7 +211,17 @@ public class Parser
 		
 		this.parse_tree.addNonTerminal(NonTerminals.ID_LIST);
 		this.parse_tree.addAlternativeNumber(myRow, 1);
-		this.parse_tree.addChild(myRow, Parser.ID_index, "id");
+		
+		
+		//make sure variable is not declared more than once
+		//this is a semantic check
+		if(this.decl_seq)
+		{
+			if(!this.parse_tree.containsMutlipleDeclaredVariable())
+				this.parse_tree.addChild(myRow, Parser.ID_index, "id");
+			else
+				throw new IllegalArgumentException("Error: "+this.scanner.getTokenValue() + " is declared more than once.");
+		}
 		
 		this.scanner.nextToken();
 		
@@ -1067,7 +1078,7 @@ public class Parser
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("t1.code"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x,y; int z,a, z; int b, a; begin x:= 10; end"))));
 		p1.makeParseTree();
 	}
 	
