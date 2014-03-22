@@ -1071,6 +1071,7 @@ public class Parser
 		
 	}
 	
+	
 	/**
 	 * Main Method test
 	 * @param args
@@ -1078,7 +1079,7 @@ public class Parser
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x,y; int z,a, z; int b, a; begin x:= 10; end"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x,y; begin x:= 10; end"))));
 		p1.makeParseTree();
 	}
 	
