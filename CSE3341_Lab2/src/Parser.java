@@ -1,8 +1,3 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.StringReader;
-
 /**
  * Class Parser creates a Parse Tree with a given Scanner to create Tokens
  * 
@@ -1106,12 +1101,6 @@ public class Parser
 		return myRow;
 		
 	}
-	public static void main(String[] args)
-	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x,y,z; begin x:= 10; input a; end"))));
-		p1.makeParseTree();
-		
-		
-	}
+
 		
 }
