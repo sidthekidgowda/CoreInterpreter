@@ -474,12 +474,24 @@ public class Scanner {
 		private TokenType token_type;
 		private String token_value;
 		
+		/**
+		 * Constructor creates a Token
+		 * 
+		 * @param c is the char value
+		 * @param t is the Token Type
+		 */
 		private Token(char c, TokenType t)
 		{
 			this.token_type = t;
 			this.token_value = Character.toString(c);
 			
 		}
+		/**
+		 * Constructor creates a Token
+		 * 
+		 * @param s is the string value
+		 * @param t is the Token Type
+		 */
 		private Token(String s, TokenType t)
 		{
 			this.token_type = t;

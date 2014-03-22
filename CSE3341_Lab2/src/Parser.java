@@ -91,7 +91,6 @@ public class Parser
 		
 		this.parse_tree.addChild(myRow, declSeq, "non-terminal");
 		
-		
 		//match BEGIN token
 		if(!this.scanner.matchToken(TokenType.BEGIN))
 			throw new IllegalArgumentException("Error: expecting the word \"begin\"");
@@ -137,7 +136,7 @@ public class Parser
 			this.parse_tree.addChild(myRow, decl, "non-terminal");
 			
 		}
-		if(this.scanner.getTokenType() == TokenType.INT)
+		else //TokenType is INT
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			int declSeq = declSeq();
@@ -303,16 +302,11 @@ public class Parser
 			int out = this.out();
 			this.parse_tree.addChild(myRow, out, "non-terminal");
 		}
-		else if(this.scanner.getTokenType() == TokenType.CASE)
+		else //Case statement
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 5);
 			int case_stmt = this.case_stmt();
 			this.parse_tree.addChild(myRow, case_stmt, "non-terminal");
-		}
-		else
-		{
-			//error case
-			throw new IllegalArgumentException("Error: Illegal stmt word \""+this.scanner.getTokenValue()+"\"");
 		}
 		
 		return myRow;
@@ -647,7 +641,7 @@ public class Parser
 	 * Incoming Token(CONSTANT)
 	 * Outgoing Token(COLON)
 	 * 
-	 * @return
+	 * @return the row number of the Parse Tree table
 	 */
 	private int list()
 	{
@@ -658,13 +652,13 @@ public class Parser
 			throw new IllegalArgumentException("Error: expecting a constant");
 		
 		this.parse_tree.addNonTerminal(NonTerminals.LIST);
-		this.parse_tree.addChild(myRow, Const_index, "constant");
+		this.parse_tree.addChild(myRow, Parser.Const_index, "constant");
 		
 		this.scanner.nextToken();
 		
 		if(this.scanner.getTokenType() == TokenType.COMMA)
 		{
-			//match Comman
+			//match Comma
 			if(!this.scanner.matchToken(TokenType.COMMA))
 				throw new IllegalArgumentException("Error: expecting a comma \";\"");
 			
@@ -687,10 +681,10 @@ public class Parser
 	 * <expr> ::= <term> | <term> + <expr> | <term> - <expr>
 	 * One Lookahead Token coming in, One Lookahead Token going out
 	 * 
-	 * Incoming Token (CONSTANT, ID, MINUS, LEFT_PAREN)
-	 * Outgoing Token (SEMICOLON, <, = , != , >, >=, <=, RIGHT_BRACKET)
+	 * Incoming Token (CONSTANT or ID or MINUS or LEFT_PAREN)
+	 * Outgoing Token (SEMICOLON or < or = or != or > or >= or <= or RIGHT_BRACKET)
 	 * 
-	 * @return
+	 * @return the row number of the Parse Tree table
 	 */
 	private int expr()
 	{
@@ -720,6 +714,7 @@ public class Parser
 			if(!this.scanner.matchToken(TokenType.SUBT_OP))
 				throw new IllegalArgumentException("Error: expecting a subtraction operation \"-\"");
 			
+			this.scanner.nextToken();
 			int expr = this.expr();
 			this.parse_tree.addAlternativeNumber(myRow, 3);
 			this.parse_tree.addChild(myRow, expr, "non-terminal");
@@ -728,27 +723,190 @@ public class Parser
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 1);
 		}
-		
 		return myRow;
 	}
+	
+	/**
+	 * Parse the conditional statement
+	 * 
+	 * <cond> ::= <cmpr> | !<cond> | ( <cond> AND <cond> ) | ( <cond> OR <cond> )
+	 * One Lookahead Token coming in, One Lookahead Token going out
+	 *  
+	 * Incoming Token( [ or ! or ( )
+	 * Outgoing Token(ENDDO)
+	 *  
+	 * @return the row number of the Parse Tree table
+	 */
 	private int cond()
 	{
 		int myRow = Parser.nextRow;
 		Parser.nextRow++;
 		
+		this.parse_tree.addNonTerminal(NonTerminals.COND);
+		
+		if(this.scanner.getTokenType() == TokenType.LBRACKET)
+		{
+			int cmpr = this.cmpr();
+			this.parse_tree.addAlternativeNumber(myRow, 1);
+			this.parse_tree.addChild(myRow, cmpr, "non-terminal");
+		}
+		else if(this.scanner.getTokenType() == TokenType.NOT)
+		{
+			//match not operator
+			if(!this.scanner.matchToken(TokenType.NOT))
+				throw new IllegalArgumentException("Error: expecting the not operator \"!\"");
+			
+			this.scanner.nextToken();
+			int cond = this.cond();
+			this.parse_tree.addAlternativeNumber(myRow, 2);
+			this.parse_tree.addChild(myRow, cond, "non-terminal");
+
+		}
+		else //Token is ( or LEFT_PAREN
+		{
+			//match left parenthesis
+			if(!this.scanner.matchToken(TokenType.LPAREN))
+				throw new IllegalArgumentException("Error: expecting a left parenthesis \"(\"");
+			
+			this.scanner.nextToken();
+			int cond = this.cond();
+			this.parse_tree.addChild(myRow, cond, "non-terminal");
+			if(this.scanner.getTokenType() == TokenType.AND)
+			{
+				//match and
+				if(!this.scanner.matchToken(TokenType.AND))
+					throw new IllegalArgumentException("Error: expecting the keyword \"AND\"");
+				
+				this.parse_tree.addAlternativeNumber(myRow, 3);
+			}
+			else if(this.scanner.getTokenType() == TokenType.OR)
+			{
+				//match or
+				if(!this.scanner.matchToken(TokenType.OR))
+					throw new IllegalArgumentException("Error: expecting the keyword \"AND\"");
+				this.parse_tree.addAlternativeNumber(myRow, 4);
+			}
+			
+			this.scanner.nextToken();
+			cond = this.cond();
+			this.parse_tree.addChild(myRow, cond, "non-terminal");
+			
+			//match right parenthesis
+			if(!this.scanner.matchToken(TokenType.RPAREN))
+				throw new IllegalArgumentException("Error: expecting a right parenthesis \")\"");
+			
+			this.scanner.nextToken();
+		}
+		
 		return myRow;
 	}
+	/**
+	 * Parse the comparison statement inside the conditional statement
+	 * 
+	 * <cmpr> ::= [ <expr><cmpr-op><expr> ]
+	 * One Lookahead Token coming in, One Lookahead Token going out
+	 * 
+	 * Incoming Token([)
+	 * Outgoing Token()
+	 * 
+	 * @return the row number of the Parse Tree table
+	 */
 	private int cmpr()
 	{
 		int myRow = Parser.nextRow;
 		Parser.nextRow++;
 		
+		//match Left Bracket
+		if(!this.scanner.matchToken(TokenType.LBRACKET))
+			throw new IllegalArgumentException("Error: Left Bracket expected \"[\"");
+		
+		this.scanner.nextToken();
+		this.parse_tree.addNonTerminal(NonTerminals.CMPR);
+		this.parse_tree.addAlternativeNumber(myRow, 1);
+		int expr = this.expr();
+		this.parse_tree.addChild(myRow, expr, "non-terminal");
+		
+		
+		int cmpr_op = this.cmpr_op();
+		this.parse_tree.addChild(myRow, cmpr_op, "non-terminal");
+		
+		expr = this.expr();
+		this.parse_tree.addChild(myRow, expr, "non-terminal");
+		
+		//match Right Bracket
+		if(!this.scanner.matchToken(TokenType.RBRACKET))
+			throw new IllegalArgumentException("Error: Right Bracket expected \"]\"");
+		
+		this.scanner.nextToken();
+		
 		return myRow;
 	}
+	
+	/**
+	 * Parse the comparsion operation statement inside the comparison statement
+	 * 
+	 * <cmpr-op> ::= < | = | != | > | >= | <=
+	 * One Lookahead Token coming in, One Lookahead Token going out
+	 * 
+	 * Incoming Token (< or = or != or > or >= or <=)
+	 * Outgoing Token (CONST or ID or - or LEFT_PAREN)
+	 * 
+	 * @return the row number of the Parse Tree table
+	 */
 	private int cmpr_op()
 	{
 		int myRow = Parser.nextRow;
 		Parser.nextRow++;
+		this.parse_tree.addNonTerminal(NonTerminals.CMPR_OP);
+		
+		if(this.scanner.getTokenType() == TokenType.LESS_THAN)
+		{
+			//match less than
+			if(!this.scanner.matchToken(TokenType.LESS_THAN))
+				throw new IllegalArgumentException("Error: Less than symbol expected \"<\"");
+			
+			this.parse_tree.addAlternativeNumber(myRow, 1);
+		}
+		else if(this.scanner.getTokenType() == TokenType.EQUAL)
+		{
+			//match equal sign
+			if(!this.scanner.matchToken(TokenType.EQUAL))
+				throw new IllegalArgumentException("Error: Equal sign expected \"=\"");
+			
+			this.parse_tree.addAlternativeNumber(myRow, 2);
+		}
+		else if(this.scanner.getTokenType() == TokenType.NOT_EQUAL)
+		{
+			//match not equal
+			if(!this.scanner.matchToken(TokenType.NOT_EQUAL))
+				throw new IllegalArgumentException("Error: Not Equal to sign expected \"!=\"");
+			
+			this.parse_tree.addAlternativeNumber(myRow, 3);
+		}
+		else if(this.scanner.getTokenType() == TokenType.GREATER_THAN)
+		{
+			//match greater than
+			if(!this.scanner.matchToken(TokenType.GREATER_THAN))
+				throw new IllegalArgumentException("Error: Less than symbol expected \"<\"");
+			
+			this.parse_tree.addAlternativeNumber(myRow, 4);
+		}
+		else if(this.scanner.getTokenType() == TokenType.GREATER_OR_EQ_TO)
+		{
+			//match less than
+			if(!this.scanner.matchToken(TokenType.GREATER_OR_EQ_TO))
+				throw new IllegalArgumentException("Error: Less than symbol expected \"<\"");
+			
+			this.parse_tree.addAlternativeNumber(myRow, 5);
+		}
+		else //<=
+		{
+			//match less than
+			if(!this.scanner.matchToken(TokenType.LESS_THAN_OR_EQ_TO))
+				throw new IllegalArgumentException("Error: Less than or equal to symbol expected \"<=\"");
+			
+			this.parse_tree.addAlternativeNumber(myRow, 6);
+		}
 		
 		return myRow;
 	}
@@ -757,8 +915,12 @@ public class Parser
 	 * Parse the term in the expression
 	 * 
 	 * <term> ::= <factor> | <factor> * <term>
-	 * 
 	 * One Lookahead token coming in, One Lookahead token going out
+	 * 
+	 * Incoming Token (CONSTANT or ID or MINUS or LEFT_PAREN)
+	 * Outgoing Token (SEMICOLON or < or = or != or > or >= or <= or RIGHT_BRACKET)
+	 * 
+	 * 
 	 * @return
 	 */
 	private int term()
@@ -766,12 +928,101 @@ public class Parser
 		int myRow = Parser.nextRow;
 		Parser.nextRow++;
 		
+		this.parse_tree.addNonTerminal(NonTerminals.TERM);
+		
+		int factor = this.factor();
+		
+		this.parse_tree.addChild(myRow, factor, "non-terminal");
+		
+		if(this.scanner.getTokenType() == TokenType.MULT_OP)
+		{
+			//match mult operation
+			if(!this.scanner.matchToken(TokenType.MULT_OP))
+				throw new IllegalArgumentException("Error: expecting a multiplication operation \"*\"");
+			
+			this.scanner.nextToken();
+			int term = this.term();
+			this.parse_tree.addAlternativeNumber(myRow, 2);
+			this.parse_tree.addChild(myRow, term, "non-terminal");
+			
+		}
+		else
+		{
+			this.parse_tree.addAlternativeNumber(myRow, 1);
+		}
+		
 		return myRow;
 	}
+	/**
+	 * Parse the factor in the term
+	 * 
+	 * <factor> ::= const | id | - <factor> | (<expr>)
+	 * 
+	 * One Lookahead Token coming in, One Lookahead Token going out
+	 * Incoming Token(CONSTANT, ID, -, RIGHT_PAREN)
+	 * Outgoing Token(SEMICOLON, <, = , != , >, >=, <=, RIGHT_BRACKET)
+	 * 
+	 * @return
+	 */
 	private int factor()
 	{
 		int myRow = Parser.nextRow;
 		Parser.nextRow++;
+		this.parse_tree.addNonTerminal(NonTerminals.FACTOR);
+		
+		if(this.scanner.getTokenType() == TokenType.CONSTANT)
+		{
+			//match constant
+			if(!this.scanner.matchToken(TokenType.CONSTANT))
+				throw new IllegalArgumentException("Error: expecting a constant");
+			
+			this.scanner.nextToken();
+			this.parse_tree.addAlternativeNumber(myRow, 1);
+			this.parse_tree.addChild(myRow, Parser.Const_index, "constant");
+			
+		}
+		else if(this.scanner.getTokenType() == TokenType.ID)
+		{
+			//match id
+			if(!this.scanner.matchToken(TokenType.ID))
+				throw new IllegalArgumentException("Error: expecting an identifier");
+			
+			this.scanner.nextToken();
+			this.parse_tree.addAlternativeNumber(myRow, 2);
+			this.parse_tree.addChild(myRow, Parser.ID_index, "identifier");
+		}
+		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
+		{
+			//match minus op
+			if(!this.scanner.matchToken(TokenType.SUBT_OP))
+				throw new IllegalArgumentException("Error: expecting a minus \"-\"");
+			
+			this.scanner.nextToken();
+			
+			int factor = this.factor();
+			
+			this.parse_tree.addAlternativeNumber(myRow, 3);
+			this.parse_tree.addChild(myRow, factor, "non-terminal");
+		}
+		else //Left Parenthesis
+		{
+			//match left parenthesis
+			if(!this.scanner.matchToken(TokenType.LPAREN))
+				throw new IllegalArgumentException("Error: expecting a left parenthesis \"(\"");
+			
+			this.scanner.nextToken();
+			
+			int expr = this.expr();
+			
+			this.parse_tree.addAlternativeNumber(myRow, 4);
+			this.parse_tree.addChild(myRow, expr, "non-terminal");
+			
+			//match right parenthesis
+			if(!this.scanner.matchToken(TokenType.RPAREN))
+				throw new IllegalArgumentException("Error: expecting a right parenthesis \")\"");
+			
+			this.scanner.nextToken();
+		}
 		
 		return myRow;
 	}
