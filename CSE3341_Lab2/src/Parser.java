@@ -250,13 +250,19 @@ public class Parser
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 1);
 		}
-		else // recursive descent again
+		//use the lookahead token
+		else if(this.scanner.getTokenType() == TokenType.ID||
+				this.scanner.getTokenType() == TokenType.IF ||
+				this.scanner.getTokenType() == TokenType.DO ||
+				this.scanner.getTokenType() == TokenType.INPUT ||
+				this.scanner.getTokenType() == TokenType.OUTPUT ||
+				this.scanner.getTokenType() == TokenType.CASE 
+				)
 		{
 			int stmt_seq = this.stmtSeq();
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			this.parse_tree.addChild(myRow, stmt_seq, "non-terminal");
 		}
-		
 		return myRow;
 	}
 	/**
@@ -309,13 +315,13 @@ public class Parser
 			int out = this.out();
 			this.parse_tree.addChild(myRow, out, "non-terminal");
 		}
-		else //Case statement
+		else if(this.scanner.getTokenType() == TokenType.CASE)
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 5);
 			int case_stmt = this.case_stmt();
 			this.parse_tree.addChild(myRow, case_stmt, "non-terminal");
 		}
-		
+	
 		return myRow;
 	}
 	
@@ -683,57 +689,6 @@ public class Parser
 	} 
 	
 	/**
-	 * Parse an expression
-	 * 
-	 * <expr> ::= <term> | <term> + <expr> | <term> - <expr>
-	 * One Lookahead Token coming in, One Lookahead Token going out
-	 * 
-	 * Incoming Token (CONSTANT or ID or MINUS or LEFT_PAREN)
-	 * Outgoing Token (SEMICOLON or < or = or != or > or >= or <= or RIGHT_BRACKET)
-	 * 
-	 * @return the row number of the Parse Tree table
-	 */
-	private int expr()
-	{
-		int myRow = Parser.nextRow;
-		Parser.nextRow++;
-		
-		this.parse_tree.addNonTerminal(NonTerminals.EXPR);
-		int term = this.term();
-		this.parse_tree.addChild(myRow, term, "non-terminal");
-		
-		
-		if(this.scanner.getTokenType() == TokenType.ADD_OP)
-		{
-			//match add op
-			if(!this.scanner.matchToken(TokenType.ADD_OP))
-				throw new IllegalArgumentException("Error: expecting a add operation \"+\"");
-			
-			this.scanner.nextToken();
-			
-			int expr = this.expr();
-			this.parse_tree.addAlternativeNumber(myRow, 2);
-			this.parse_tree.addChild(myRow, expr, "non-terminal");
-		}
-		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
-		{
-			//match subtract op
-			if(!this.scanner.matchToken(TokenType.SUBT_OP))
-				throw new IllegalArgumentException("Error: expecting a subtraction operation \"-\"");
-			
-			this.scanner.nextToken();
-			int expr = this.expr();
-			this.parse_tree.addAlternativeNumber(myRow, 3);
-			this.parse_tree.addChild(myRow, expr, "non-terminal");
-		}
-		else
-		{
-			this.parse_tree.addAlternativeNumber(myRow, 1);
-		}
-		return myRow;
-	}
-	
-	/**
 	 * Parse the conditional statement
 	 * 
 	 * <cond> ::= <cmpr> | !<cond> | ( <cond> AND <cond> ) | ( <cond> OR <cond> )
@@ -769,7 +724,7 @@ public class Parser
 			this.parse_tree.addChild(myRow, cond, "non-terminal");
 
 		}
-		else //Token is ( or LEFT_PAREN
+		else if(this.scanner.getTokenType() == TokenType.LPAREN)
 		{
 			//match left parenthesis
 			if(!this.scanner.matchToken(TokenType.LPAREN))
@@ -906,7 +861,7 @@ public class Parser
 			
 			this.parse_tree.addAlternativeNumber(myRow, 5);
 		}
-		else //<=
+		else if(this.scanner.matchToken(TokenType.LESS_THAN_OR_EQ_TO))
 		{
 			//match less than
 			if(!this.scanner.matchToken(TokenType.LESS_THAN_OR_EQ_TO))
@@ -915,6 +870,57 @@ public class Parser
 			this.parse_tree.addAlternativeNumber(myRow, 6);
 		}
 		
+		return myRow;
+	}
+	
+	/**
+	 * Parse an expression
+	 * 
+	 * <expr> ::= <term> | <term> + <expr> | <term> - <expr>
+	 * One Lookahead Token coming in, One Lookahead Token going out
+	 * 
+	 * Incoming Token (CONSTANT or ID or MINUS or LEFT_PAREN)
+	 * Outgoing Token (SEMICOLON or < or = or != or > or >= or <= or RIGHT_BRACKET)
+	 * 
+	 * @return the row number of the Parse Tree table
+	 */
+	private int expr()
+	{
+		int myRow = Parser.nextRow;
+		Parser.nextRow++;
+		
+		this.parse_tree.addNonTerminal(NonTerminals.EXPR);
+		int term = this.term();
+		this.parse_tree.addChild(myRow, term, "non-terminal");
+		
+		
+		if(this.scanner.getTokenType() == TokenType.ADD_OP)
+		{
+			//match add op
+			if(!this.scanner.matchToken(TokenType.ADD_OP))
+				throw new IllegalArgumentException("Error: expecting a add operation \"+\"");
+			
+			this.scanner.nextToken();
+			
+			int expr = this.expr();
+			this.parse_tree.addAlternativeNumber(myRow, 2);
+			this.parse_tree.addChild(myRow, expr, "non-terminal");
+		}
+		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
+		{
+			//match subtract op
+			if(!this.scanner.matchToken(TokenType.SUBT_OP))
+				throw new IllegalArgumentException("Error: expecting a subtraction operation \"-\"");
+			
+			this.scanner.nextToken();
+			int expr = this.expr();
+			this.parse_tree.addAlternativeNumber(myRow, 3);
+			this.parse_tree.addChild(myRow, expr, "non-terminal");
+		}
+		else
+		{
+			this.parse_tree.addAlternativeNumber(myRow, 1);
+		}
 		return myRow;
 	}
 	
@@ -1011,7 +1017,7 @@ public class Parser
 			this.parse_tree.addAlternativeNumber(myRow, 3);
 			this.parse_tree.addChild(myRow, factor, "non-terminal");
 		}
-		else //Left Parenthesis
+		else if(this.scanner.getTokenType() == TokenType.LPAREN) //Left Parenthesis
 		{
 			//match left parenthesis
 			if(!this.scanner.matchToken(TokenType.LPAREN))
@@ -1030,7 +1036,6 @@ public class Parser
 			
 			this.scanner.nextToken();
 		}
-		
 		return myRow;
 	}
 	
@@ -1041,7 +1046,7 @@ public class Parser
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x, y, xy; begin"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("bad2.code"))));
 		p1.makeParseTree();
 	}
 	
