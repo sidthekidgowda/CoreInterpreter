@@ -1046,7 +1046,7 @@ public class Parser
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("bad2.code"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("t1.code"))));
 		p1.makeParseTree();
 	}
 	
