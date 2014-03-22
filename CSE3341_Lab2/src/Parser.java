@@ -17,7 +17,7 @@ public class Parser
 	private static int nextRow;//stores the global variable for the next available row
 	private static int ID_index; //used to reference ID symbol table
 	private static int Const_index;//used to reference Constant symbol table
-	private boolean decl_seq;//used for semantic checking of multiple declared variables
+	private static boolean decl_seq;//used for semantic checking of multiple declared variables
 
 	
 	/**
@@ -27,6 +27,7 @@ public class Parser
 		Parser.nextRow = 0;
 		Parser.ID_index = -1;
 		Parser.Const_index = -2;
+		Parser.decl_seq = true;
 	}
 	
 	/**
@@ -38,8 +39,6 @@ public class Parser
 	{
 		this.scanner = s;
 		this.parse_tree = new ParseTree(this.scanner);
-		this.decl_seq = true;
-		
 	}
 	/**
 	 * This method decrements the Identifier index by 2
@@ -55,6 +54,12 @@ public class Parser
 	{
 		Parser.Const_index-=2;
 	}
+	
+	public static boolean isProgramInDeclSeq()
+	{
+		return Parser.decl_seq;
+	}
+	
 	/**
 	 * method makeParseTree() creates a ParseTree object
 	 */
@@ -87,7 +92,7 @@ public class Parser
 		
 		//match Program Token
 		if(!this.scanner.matchToken(TokenType.PROGRAM))
-			throw new IllegalArgumentException("Error: expecting the word \"program\"");
+			throw new IllegalArgumentException("Error: expecting the word \"program\" in the program production rule");
 	
 		this.parse_tree.addNonTerminal(NonTerminals.PROG);
 		this.parse_tree.addAlternativeNumber(myRow, 1);
@@ -97,11 +102,11 @@ public class Parser
 		
 		this.parse_tree.addChild(myRow, declSeq, "non-terminal");
 		
-		//
-		this.decl_seq = false;
+		//change the decl_seq to false now since we are done
+		Parser.decl_seq = false;
 		//match BEGIN token
 		if(!this.scanner.matchToken(TokenType.BEGIN))
-			throw new IllegalArgumentException("Error: expecting the word \"begin\"");
+			throw new IllegalArgumentException("Error: expecting the word \"begin\" in the program production rule");
 		
 		this.scanner.nextToken();
 		int stmtSeq = this.stmtSeq();
@@ -109,7 +114,7 @@ public class Parser
 		
 		//match the END token
 		if(!this.scanner.matchToken(TokenType.END))
-			throw new IllegalArgumentException("Error: expecting the word \"end\"");
+			throw new IllegalArgumentException("Error: expecting the word \"end\" in the program production rule");
 		
 		this.scanner.nextToken();
 		
@@ -154,7 +159,7 @@ public class Parser
 		return myRow;
 	}
 	/**
-	 * Parse the decl seq method
+	 * Parse the decl method
 	 * <decl> ::= int <id-list>;
 	 * 
 	 * One Lookahead Token coming in, One Lookahead Token going out
@@ -171,7 +176,7 @@ public class Parser
 		
 		//match INT token
 		if(!this.scanner.matchToken(TokenType.INT))
-			throw new IllegalArgumentException("Error: expecting the word \"int\"");
+			throw new IllegalArgumentException("Error: expecting the word \"int\" in the decl production rules");
 		
 		this.scanner.nextToken();
 
@@ -183,7 +188,7 @@ public class Parser
 		
 		//match SemiColon Token
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\" in the decl production rule");
 		
 		this.scanner.nextToken();
 		return myRow;
@@ -207,7 +212,12 @@ public class Parser
 		
 		//match ID token
 		if(!this.scanner.matchToken(TokenType.ID))
-			throw new IllegalArgumentException("Error: expecting an identifier");
+			throw new IllegalArgumentException("Error: expecting an identifier in an id list production rule");
+		
+		//check and see if the identifier used is declared
+		if(!this.parse_tree.checkIfVariableIsDeclared(this.scanner.getTokenValue()) && !Parser.decl_seq)
+				throw new IllegalArgumentException("Error: the identifier \""+this.scanner.getTokenValue()+"\""  
+					+ " has not been declared in the declaration sequence so it cannot be used.");
 		
 		this.parse_tree.addNonTerminal(NonTerminals.ID_LIST);
 		this.parse_tree.addAlternativeNumber(myRow, 1);
@@ -215,12 +225,12 @@ public class Parser
 		
 		//make sure variable is not declared more than once
 		//this is a semantic check
-		if(this.decl_seq)
+		if(Parser.decl_seq)
 		{
 			if(!this.parse_tree.containsMutlipleDeclaredVariable())
 				this.parse_tree.addChild(myRow, Parser.ID_index, "id");
 			else
-				throw new IllegalArgumentException("Error: "+this.scanner.getTokenValue() + " is declared more than once.");
+				throw new IllegalArgumentException("Error: the identifier "+this.scanner.getTokenValue() + " is declared more than once.");
 		}
 		
 		this.scanner.nextToken();
@@ -229,7 +239,7 @@ public class Parser
 		{
 			//match the comma
 			if(!this.scanner.matchToken(TokenType.COMMA))
-				throw new IllegalArgumentException("Error: expecting a comma \",\"");
+				throw new IllegalArgumentException("Error: expecting a comma \",\" in the id list production rule");
 			
 			//call next Token
 			this.scanner.nextToken();
@@ -358,12 +368,17 @@ public class Parser
 		Parser.nextRow++;
 		
 		if(!this.scanner.matchToken(TokenType.ID))
-			throw new IllegalArgumentException("Error: expecting an indentifier");
+			throw new IllegalArgumentException("Error: expecting an indentifier in the assign production rule");
+		
+		//check and see if the identifier used is declared
+		if(!this.parse_tree.checkIfVariableIsDeclared(this.scanner.getTokenValue()))
+				throw new IllegalArgumentException("Error: the identifier \""+this.scanner.getTokenValue()+"\""  
+					+ " has not been declared in the declaration sequence so it cannot be used.");
 		
 		this.scanner.nextToken();
 		
 		if(!this.scanner.matchToken(TokenType.ASSIGN))
-			throw new IllegalArgumentException("Error: expecting an assignment sign \":=\"");
+			throw new IllegalArgumentException("Error: expecting an assignment sign \":=\" in the assign production rule");
 		
 		this.scanner.nextToken();
 		
@@ -374,7 +389,7 @@ public class Parser
 		this.parse_tree.addChild(myRow, expr, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\" in the assign production rule");
 		
 		this.scanner.nextToken();
 		return myRow;
@@ -398,7 +413,7 @@ public class Parser
 		Parser.nextRow++;
 
 		if(!this.scanner.matchToken(TokenType.IF))
-			throw new IllegalArgumentException("Error: expecting the word \"if\"");
+			throw new IllegalArgumentException("Error: expecting the word \"if\" in the if production rule");
 	
 		this.scanner.nextToken();
 		
@@ -407,7 +422,7 @@ public class Parser
 		this.parse_tree.addChild(myRow, cond, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.THEN))
-			throw new IllegalArgumentException("Error: expecting the word \"then\"");
+			throw new IllegalArgumentException("Error: expecting the word \"then\" in the if production rule");
 		
 		this.scanner.nextToken();
 		int then_stmt = this.stmtSeq();
@@ -418,7 +433,7 @@ public class Parser
 		{
 			//match else
 			if(!this.scanner.matchToken(TokenType.ELSE))
-				throw new IllegalArgumentException("Error: expecting the word \"else\"");
+				throw new IllegalArgumentException("Error: expecting the word \"else\" in the if production rule");
 			
 			this.scanner.nextToken();
 			int else_stmt = this.stmtSeq();
@@ -431,12 +446,12 @@ public class Parser
 		}
 		
 		if(!this.scanner.matchToken(TokenType.ENDIF))
-			throw new IllegalArgumentException("Error: expecting the word \"endif\"");
+			throw new IllegalArgumentException("Error: expecting the word \"endif\" in the if production rule");
 		
 		this.scanner.nextToken();
 		
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\" in the if production rule");
 	
 		this.scanner.nextToken();
 		return myRow;
@@ -459,7 +474,7 @@ public class Parser
 		Parser.nextRow++;
 		
 		if(!this.scanner.matchToken(TokenType.DO))
-			throw new IllegalArgumentException("Error: expecting the word\"do\"");
+			throw new IllegalArgumentException("Error: expecting the word\"do\" in the loop production rule");
 		
 		this.scanner.nextToken();
 		
@@ -470,7 +485,7 @@ public class Parser
 		this.parse_tree.addChild(myRow, stmtSeq, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.WHILE))
-			throw new IllegalArgumentException("Error: expecting the word \"while\"");
+			throw new IllegalArgumentException("Error: expecting the word \"while\" in the loop production rule");
 		
 		this.scanner.nextToken();
 		int cond = this.cond();
@@ -478,12 +493,12 @@ public class Parser
 		this.parse_tree.addChild(myRow, cond, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.ENDDO))
-			throw new IllegalArgumentException("Error: expecting the word \"enddo\"");
+			throw new IllegalArgumentException("Error: expecting the word \"enddo\" in the loop production rule");
 		
 		this.scanner.nextToken();
 		
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\" in the loop production rule");
 		
 		this.scanner.nextToken();
 		
@@ -508,7 +523,7 @@ public class Parser
 		Parser.nextRow++;
 		
 		if(!this.scanner.matchToken(TokenType.INPUT))
-			throw new IllegalArgumentException("Error: expecting the word \"input\"");
+			throw new IllegalArgumentException("Error: expecting the word \"input\" in the input production rule");
 		
 		this.parse_tree.addNonTerminal(NonTerminals.IN);
 		this.parse_tree.addAlternativeNumber(myRow, 1);
@@ -519,7 +534,7 @@ public class Parser
 		this.parse_tree.addChild(myRow, id_list, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\" in the input production rule");
 		
 		this.scanner.nextToken();
 		
@@ -544,7 +559,7 @@ public class Parser
 		Parser.nextRow++;
 		
 		if(!this.scanner.matchToken(TokenType.OUTPUT))
-			throw new IllegalArgumentException("Error: expecting the word \"output\"");
+			throw new IllegalArgumentException("Error: expecting the word \"output\" in the output production rule");
 		
 		this.scanner.nextToken();
 		
@@ -556,7 +571,7 @@ public class Parser
 		this.parse_tree.addChild(myRow, id_list, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\" in the output production rule");
 		
 		this.scanner.nextToken();
 		
@@ -581,31 +596,46 @@ public class Parser
 		Parser.nextRow++;
 		
 		if(!this.scanner.matchToken(TokenType.CASE))
-			throw new IllegalArgumentException("Error: expecting the word \"case\"");
+			throw new IllegalArgumentException("Error: expecting the word \"case\" in the case production rule");
 		
 		this.scanner.nextToken();
 		
 		if(!this.scanner.matchToken(TokenType.ID))
-			throw new IllegalArgumentException("Error: expecting an identifier");
+			throw new IllegalArgumentException("Error: expecting an identifier in the case production rule");
+		
+		//check and see if the identifier used is declared
+		if(!this.parse_tree.checkIfVariableIsDeclared(this.scanner.getTokenValue()))
+				throw new IllegalArgumentException("Error: the identifier \""+this.scanner.getTokenValue()+"\""  
+					+ " has not been declared in the declaration sequence so it cannot be used.");
 		
 		this.parse_tree.addNonTerminal(NonTerminals.CASE);
 		this.parse_tree.addAlternativeNumber(myRow, 1);
 		this.parse_tree.addChild(myRow, Parser.ID_index, "id");
 		
 		this.scanner.nextToken();
+		
+		if(!this.scanner.matchToken(TokenType.OF))
+			throw new IllegalArgumentException("Error: expecting the keyword \"of\" in the case production rule");
+		
+		this.scanner.nextToken();
+		
 		int list_block = this.list_block();
 		this.parse_tree.addChild(myRow, list_block, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.ELSE))
-			throw new IllegalArgumentException("Error: expecting the word \"else\"");
+			throw new IllegalArgumentException("Error: expecting the word \"else\" in the case production rule");
 		
 		this.scanner.nextToken();
 		int expr = this.expr();
 		this.parse_tree.addChild(myRow, expr, "non-terminal");
 	
+		if(!this.scanner.matchToken(TokenType.END))
+			throw new IllegalArgumentException("Error: expecting the keyword \"end\" in the case production rule");
+		
+		this.scanner.nextToken();
 		
 		if(!this.scanner.matchToken(TokenType.SEMICOLON))
-			throw new IllegalArgumentException("Error: expecting a semicolon \";\"");
+			throw new IllegalArgumentException("Error: expecting a semicolon \";\" in the case production rule");
 		
 		this.scanner.nextToken();
 		
@@ -634,7 +664,7 @@ public class Parser
 		this.parse_tree.addChild(myRow, list, "non-terminal");
 		
 		if(!this.scanner.matchToken(TokenType.COLON))
-			throw new IllegalArgumentException("Error: expecting a colon \":\"");
+			throw new IllegalArgumentException("Error: expecting a colon \":\" in the list_block production rule");
 		
 		this.scanner.nextToken();
 		int expr = this.expr();
@@ -645,7 +675,7 @@ public class Parser
 		{
 			//match the bar
 			if(!this.scanner.matchToken(TokenType.BAR))
-				throw new IllegalArgumentException("Error: expecting a bar \"|\"");
+				throw new IllegalArgumentException("Error: expecting a bar \"|\" in the list_block production rule");
 		
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			this.scanner.nextToken();
@@ -677,7 +707,7 @@ public class Parser
 		Parser.nextRow++;
 		
 		if(!this.scanner.matchToken(TokenType.CONSTANT))
-			throw new IllegalArgumentException("Error: expecting a constant");
+			throw new IllegalArgumentException("Error: expecting a constant in the list production rule");
 		
 		this.parse_tree.addNonTerminal(NonTerminals.LIST);
 		this.parse_tree.addChild(myRow, Parser.Const_index, "constant");
@@ -688,7 +718,7 @@ public class Parser
 		{
 			//match Comma
 			if(!this.scanner.matchToken(TokenType.COMMA))
-				throw new IllegalArgumentException("Error: expecting a comma \";\"");
+				throw new IllegalArgumentException("Error: expecting a comma \";\" in the list production rule");
 			
 			this.scanner.nextToken();
 			int list = this.list();
@@ -731,7 +761,7 @@ public class Parser
 		{
 			//match not operator
 			if(!this.scanner.matchToken(TokenType.NOT))
-				throw new IllegalArgumentException("Error: expecting the not operator \"!\"");
+				throw new IllegalArgumentException("Error: expecting the not operator \"!\" in the conditional production rule");
 			
 			this.scanner.nextToken();
 			int cond = this.cond();
@@ -743,7 +773,7 @@ public class Parser
 		{
 			//match left parenthesis
 			if(!this.scanner.matchToken(TokenType.LPAREN))
-				throw new IllegalArgumentException("Error: expecting a left parenthesis \"(\"");
+				throw new IllegalArgumentException("Error: expecting a left parenthesis \"(\" in the conditional production rule");
 			
 			this.scanner.nextToken();
 			int cond = this.cond();
@@ -752,7 +782,7 @@ public class Parser
 			{
 				//match and
 				if(!this.scanner.matchToken(TokenType.AND))
-					throw new IllegalArgumentException("Error: expecting the keyword \"AND\"");
+					throw new IllegalArgumentException("Error: expecting the keyword \"AND\" in the conditional production rule");
 				
 				this.parse_tree.addAlternativeNumber(myRow, 3);
 			}
@@ -760,7 +790,7 @@ public class Parser
 			{
 				//match or
 				if(!this.scanner.matchToken(TokenType.OR))
-					throw new IllegalArgumentException("Error: expecting the keyword \"AND\"");
+					throw new IllegalArgumentException("Error: expecting the keyword \"OR\" in the conditional production rule");
 				this.parse_tree.addAlternativeNumber(myRow, 4);
 			}
 			
@@ -770,7 +800,7 @@ public class Parser
 			
 			//match right parenthesis
 			if(!this.scanner.matchToken(TokenType.RPAREN))
-				throw new IllegalArgumentException("Error: expecting a right parenthesis \")\"");
+				throw new IllegalArgumentException("Error: expecting a right parenthesis \")\" in the conditional production rule");
 			
 			this.scanner.nextToken();
 		}
@@ -795,7 +825,7 @@ public class Parser
 		
 		//match Left Bracket
 		if(!this.scanner.matchToken(TokenType.LBRACKET))
-			throw new IllegalArgumentException("Error: Left Bracket expected \"[\"");
+			throw new IllegalArgumentException("Error: Left Bracket expected \"[\" in the comparison production rule");
 		
 		this.scanner.nextToken();
 		this.parse_tree.addNonTerminal(NonTerminals.CMPR);
@@ -812,7 +842,7 @@ public class Parser
 		
 		//match Right Bracket
 		if(!this.scanner.matchToken(TokenType.RBRACKET))
-			throw new IllegalArgumentException("Error: Right Bracket expected \"]\"");
+			throw new IllegalArgumentException("Error: Right Bracket expected \"]\" in the comparison production rule");
 		
 		this.scanner.nextToken();
 		
@@ -840,7 +870,7 @@ public class Parser
 		{
 			//match less than
 			if(!this.scanner.matchToken(TokenType.LESS_THAN))
-				throw new IllegalArgumentException("Error: Less than symbol expected \"<\"");
+				throw new IllegalArgumentException("Error: Less than symbol expected \"<\" in the comparison operator production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 1);
 		}
@@ -848,7 +878,7 @@ public class Parser
 		{
 			//match equal sign
 			if(!this.scanner.matchToken(TokenType.EQUAL))
-				throw new IllegalArgumentException("Error: Equal sign expected \"=\"");
+				throw new IllegalArgumentException("Error: Equal sign expected \"=\" in the comparison operator production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 		}
@@ -856,7 +886,7 @@ public class Parser
 		{
 			//match not equal
 			if(!this.scanner.matchToken(TokenType.NOT_EQUAL))
-				throw new IllegalArgumentException("Error: Not Equal to sign expected \"!=\"");
+				throw new IllegalArgumentException("Error: Not Equal to sign expected \"!=\" in the comparison operator production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 3);
 		}
@@ -864,7 +894,7 @@ public class Parser
 		{
 			//match greater than
 			if(!this.scanner.matchToken(TokenType.GREATER_THAN))
-				throw new IllegalArgumentException("Error: Less than symbol expected \"<\"");
+				throw new IllegalArgumentException("Error: Less than symbol expected \"<\" in the comparison operator production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 4);
 		}
@@ -872,7 +902,7 @@ public class Parser
 		{
 			//match less than
 			if(!this.scanner.matchToken(TokenType.GREATER_OR_EQ_TO))
-				throw new IllegalArgumentException("Error: Less than symbol expected \"<\"");
+				throw new IllegalArgumentException("Error: Less than symbol expected \"<\" in the comparison operator production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 5);
 		}
@@ -880,7 +910,7 @@ public class Parser
 		{
 			//match less than
 			if(!this.scanner.matchToken(TokenType.LESS_THAN_OR_EQ_TO))
-				throw new IllegalArgumentException("Error: Less than or equal to symbol expected \"<=\"");
+				throw new IllegalArgumentException("Error: Less than or equal to symbol expected \"<=\" in the comparison operator production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 6);
 		}
@@ -914,7 +944,7 @@ public class Parser
 		{
 			//match add op
 			if(!this.scanner.matchToken(TokenType.ADD_OP))
-				throw new IllegalArgumentException("Error: expecting a add operation \"+\"");
+				throw new IllegalArgumentException("Error: expecting a add operation \"+\" in the expression production rule");
 			
 			this.scanner.nextToken();
 			
@@ -927,7 +957,7 @@ public class Parser
 		{
 			//match subtract op
 			if(!this.scanner.matchToken(TokenType.SUBT_OP))
-				throw new IllegalArgumentException("Error: expecting a subtraction operation \"-\"");
+				throw new IllegalArgumentException("Error: expecting a subtraction operation \"-\" in the expression production rule");
 			
 			this.scanner.nextToken();
 			
@@ -970,7 +1000,7 @@ public class Parser
 		{
 			//match mult operation
 			if(!this.scanner.matchToken(TokenType.MULT_OP))
-				throw new IllegalArgumentException("Error: expecting a multiplication operation \"*\"");
+				throw new IllegalArgumentException("Error: expecting a multiplication operation \"*\" in the term production rule");
 			
 			this.scanner.nextToken();
 	
@@ -1007,7 +1037,7 @@ public class Parser
 		{
 			//match constant
 			if(!this.scanner.matchToken(TokenType.CONSTANT))
-				throw new IllegalArgumentException("Error: expecting a constant");
+				throw new IllegalArgumentException("Error: expecting a constant in the factor production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 1);
 			this.parse_tree.addChild(myRow, Parser.Const_index, "constant");
@@ -1018,7 +1048,13 @@ public class Parser
 		{
 			//match id
 			if(!this.scanner.matchToken(TokenType.ID))
-				throw new IllegalArgumentException("Error: expecting an identifier");
+				throw new IllegalArgumentException("Error: expecting an identifier in the factor production rule");
+			
+			//check and see if the identifier used is declared
+			if(!this.parse_tree.checkIfVariableIsDeclared(this.scanner.getTokenValue()))
+					throw new IllegalArgumentException("Error: the identifier \""+this.scanner.getTokenValue()+"\""  
+						+ " has not been declared in the declaration sequence so it cannot be used.");
+			
 			
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			this.parse_tree.addChild(myRow, Parser.ID_index, "identifier");
@@ -1028,7 +1064,7 @@ public class Parser
 		{
 			//match minus op
 			if(!this.scanner.matchToken(TokenType.SUBT_OP))
-				throw new IllegalArgumentException("Error: expecting a minus \"-\"");
+				throw new IllegalArgumentException("Error: expecting a minus \"-\" in the factor production rule");
 			
 			this.scanner.nextToken();
 			//make sure the next token must consist of a const, id or (
@@ -1043,14 +1079,15 @@ public class Parser
 			}
 			else
 			{
-				throw new IllegalArgumentException("Error: A Constant, Identifier or a Left Parenthesis must be followed after a minus sign");
+				throw new IllegalArgumentException("Error: A Constant, Identifier or a Left Parenthesis must be followed " +
+						"after a minus sign in the factor production rule");
 			}
 		}
 		else if(this.scanner.getTokenType() == TokenType.LPAREN) //Left Parenthesis
 		{
 			//match left parenthesis
 			if(!this.scanner.matchToken(TokenType.LPAREN))
-				throw new IllegalArgumentException("Error: expecting a left parenthesis \"(\"");
+				throw new IllegalArgumentException("Error: expecting a left parenthesis \"(\" in the factor production rule");
 			
 			this.scanner.nextToken();
 			
@@ -1061,31 +1098,20 @@ public class Parser
 			
 			//match right parenthesis
 			if(!this.scanner.matchToken(TokenType.RPAREN))
-				throw new IllegalArgumentException("Error: expecting a right parenthesis \")\"");
+				throw new IllegalArgumentException("Error: expecting a right parenthesis \")\" in the factor production rule");
 			
 			this.scanner.nextToken();
 				
 		}
-		
 		return myRow;
 		
 	}
-	
-	
-	/**
-	 * Main Method test
-	 * @param args
-	 * @throws FileNotFoundException 
-	 */
-	public static void main(String[] args) throws FileNotFoundException
+	public static void main(String[] args)
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x,y; begin x:= 10; end"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x,y,z; begin x:= 10; input a; end"))));
 		p1.makeParseTree();
+		
+		
 	}
-	
-	
-	
-	
-	
-	
+		
 }

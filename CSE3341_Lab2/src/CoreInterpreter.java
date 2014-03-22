@@ -37,12 +37,9 @@ public class CoreInterpreter
     	//parse and create the Parse Tree
     	this.parser.makeParseTree();
     	
-    	//make semantic check on the Parse Tree
+    	//done, if parse tree is syntactically and semantically correct, printer and executor can be called
     	
-    	
-    	
-    	
-    	
+    	//create Printer and Executor objects
     }
 
     /**

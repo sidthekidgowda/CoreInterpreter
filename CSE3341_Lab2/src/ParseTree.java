@@ -2,6 +2,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * ParseTree represented by a Parse Table with a List of Strings for Non-Terminals
@@ -26,7 +28,7 @@ public class ParseTree {
 	private Map<Integer, Integer> alternatives = null;
 	private Map<Integer, String> symbol_table = null;
 	private Map<Integer, String> constants_table =null;
-	
+	private Set<String> decl_table = null;
 	private Scanner scanner = null;
 	
 	/**
@@ -39,6 +41,7 @@ public class ParseTree {
 		this.alternatives = new HashMap<Integer, Integer>();
 		this.symbol_table = new HashMap<Integer,String>();
 		this.constants_table = new HashMap<Integer, String>();
+		this.decl_table = new HashSet<String>();
 		this.scanner = s;
 	}
 	
@@ -67,6 +70,17 @@ public class ParseTree {
 	public boolean containsMutlipleDeclaredVariable()
 	{
 		if(this.symbol_table.containsValue(this.scanner.getTokenValue()))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * This method
+	 * @param identifier
+	 */
+	public boolean checkIfVariableIsDeclared(String identifier)
+	{
+		if(this.decl_table.contains(identifier))
 			return true;
 		return false;
 	}
@@ -101,6 +115,8 @@ public class ParseTree {
 			if(!this.symbol_table.containsValue(this.scanner.getTokenValue()))
 			{
 				this.symbol_table.put(value, this.scanner.getTokenValue());
+				if(Parser.isProgramInDeclSeq())
+					this.decl_table.add(this.scanner.getTokenValue());
 				//decrement the ID index
 				Parser.decrementIDIndexBy2();
 			}
