@@ -33,7 +33,7 @@ public class ParseTree {
 	private List<Integer> id_index = null;
 	private Scanner scanner = null;
 	private LinkedList<Integer> parents = null;
-	
+	private List<Integer> alternativesList = null;
 	private static int row_num;
 	
 	/**
@@ -121,7 +121,7 @@ public class ParseTree {
 		
 		switch(s)
 		{
-		case "id":
+		case "identifier":
 			this.children.get(myRow).add(value);
 			//make sure you don't create duplicate entries in the symbol table
 			if(!this.symbol_table.containsValue(this.scanner.getTokenValue()))
@@ -250,5 +250,8 @@ public class ParseTree {
 	
 		return key;
 	}
+	
+	
+	
 
 }

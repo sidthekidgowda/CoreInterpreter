@@ -247,13 +247,13 @@ public class Parser
 		if(Parser.decl_seq)
 		{
 			if(!this.parse_tree.containsMutlipleDeclaredVariable())
-				this.parse_tree.addChild(myRow, Parser.ID_index, "id");
+				this.parse_tree.addChild(myRow, Parser.ID_index, "identifier");
 			else
 				throw new IllegalArgumentException("Error: the identifier "+this.scanner.getTokenValue() + " is declared more than once.");
 		}
 		else //add the ParserIDindex into the child from the HashMap
 		{
-			this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "id");
+			this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "identifier");
 		}
 		
 		this.scanner.nextToken();
@@ -359,7 +359,7 @@ public class Parser
 		}
 		else if(this.scanner.getTokenType() == TokenType.OUTPUT)
 		{
-			this.parse_tree.addAlternativeNumber(myRow, 4);
+			this.parse_tree.addAlternativeNumber(myRow, 5);
 			int out = this.out();
 			this.parse_tree.addChild(myRow, out, "non-terminal");
 		}
@@ -635,7 +635,7 @@ public class Parser
 		
 		this.parse_tree.addNonTerminal(NonTerminals.CASE);
 		this.parse_tree.addAlternativeNumber(myRow, 1);
-		this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "id");
+		this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "identifier");
 		
 		this.scanner.nextToken();
 		
@@ -1096,7 +1096,7 @@ public class Parser
 			
 			
 			this.parse_tree.addAlternativeNumber(myRow, 2);
-			this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "id");
+			this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "identifier");
 			this.scanner.nextToken();
 		}
 		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
