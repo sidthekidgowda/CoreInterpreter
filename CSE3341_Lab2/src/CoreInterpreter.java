@@ -52,10 +52,10 @@ public class CoreInterpreter
 		/* Replace with your code */
 		/* Remember, this method should never return null */
     	
+    	this.printer = new Printer(this.parser.getParseTree());
     	
-    	
-    	
-    	return null;
+    	return this.printer.getPrettyProgram();
+    	//return null;
     }
     
     

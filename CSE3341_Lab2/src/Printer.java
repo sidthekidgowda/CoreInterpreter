@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.StringReader;
 
 /**
@@ -21,70 +23,91 @@ public class Printer {
 	{
 		this.parse_tree = pt;
 		this.prettyProgram = new StringBuffer("");
+		this.prettyProgram.append(this.printProgram());
 	}
 	
 	/**
 	 * Makes the program in a pretty print format
 	 */
-	public void makePrettyProgam()
+	public void printPrettyProgram()
 	{
-		this.prettyProgram.append(this.printProgram());
 		System.out.println(this.prettyProgram.toString());
+	}
+	/**
+	 * 
+	 * @return the prettyProgram as a String
+	 */
+	public String getPrettyProgram()
+	{
+		return this.prettyProgram.toString();
 	}
 	/**
 	 * Does the program production rule in a pretty print format
 	 * 
-	 * @return the program as a string
+	 * @return the program as a StringBuffer
 	 */
-	private String printProgram()
+	private StringBuffer printProgram()
 	{
 		StringBuffer program = new StringBuffer();
 		
-		program.append("program\n ");
+		//move cursor to the root
+		//if the cursor is not at the top of the root, then move it there
+		if(!this.parse_tree.isCursorAtRoot())
+			this.parse_tree.moveCursorToRoot();
+		
+		program.append("program\n");
 		
 		this.parse_tree.moveCursorToChild(1);
 		
 		program.append(this.printDeclSeq());
 		
-		this.parse_tree.moveCursorToRoot();
-		
-		
 		program.append("begin\n");
-		/*
+		
 		this.parse_tree.moveCursorToChild(2);
 		
 		this.prettyProgram.append(this.printStmtSeq());
 		
 		this.prettyProgram.append("end\n");
-		*/
-		return program.toString();
+		
+		return program;
 	}
 	/**
 	 * Does the declSeq production rule in a pretty print format
 	 * 
-	 * @return the declSeq as a string
+	 * @return the declSeq as a StringBuffer
 	 */
-	private String printDeclSeq()
+	private StringBuffer printDeclSeq()
 	{
 		StringBuffer declSeq = new StringBuffer();
 		
 		this.parse_tree.moveCursorToChild(1);
+		
+		declSeq.append(" ");
 		declSeq.append(this.printDecl());
 		declSeq.append("\n");
+		
+		this.parse_tree.moveCursorUp();
 		switch(this.parse_tree.getAlternativeNumber())
 		{
-		case 1:
+		case 1://<decl>
 			//do nothing
 			break;
-		default://2
+		default://<decl><decl-seq>
 			this.parse_tree.moveCursorToChild(2);
 			declSeq.append(this.printDeclSeq());
+			this.parse_tree.moveCursorUp();
 			break;	
 		}
-		return declSeq.toString();
+		return declSeq;
 		
 	}
-	private String printDecl()
+	
+	/**
+	 * Does the decl production rule in a pretty print format
+	 * 
+	 * @return the decl as a StringBuffer
+	 */
+	private StringBuffer printDecl()
 	{
 		StringBuffer decl = new StringBuffer();
 		
@@ -98,9 +121,15 @@ public class Printer {
 		
 		this.parse_tree.moveCursorUp();
 	
-		return decl.toString();
+		return decl;
 	}
-	private String printIdList()
+	
+	/**
+	 * Does the id-list production rule in a pretty print format
+	 * 
+	 * @return the id-list as a StringBuffer
+	 */
+	private StringBuffer printIdList()
 	{
 		StringBuffer id_list = new StringBuffer();
 		this.parse_tree.moveCursorToChild(1);
@@ -111,10 +140,10 @@ public class Printer {
 		
 		switch(this.parse_tree.getAlternativeNumber())
 		{
-		case 1:
+		case 1://id
 			//do nothing
 			break;
-		default://2
+		default://id, <id-list>
 			id_list.append(",");
 			this.parse_tree.moveCursorToChild(2);
 			id_list.append(this.printIdList());
@@ -122,103 +151,534 @@ public class Printer {
 			break;	
 		}
 		
-		return id_list.toString();
+		return id_list;
 		
 	}
-	/*
-	private String printStmtSeq()
+	
+	/**
+	 * Does the stmt-sequence production rule in a pretty print format
+	 * 
+	 * @return the stmt-sequence as a StringBuffer
+	 */
+	private StringBuffer printStmtSeq()
 	{
-		switch(this.PT.getAlternativeNumber(my_row))
+		StringBuffer stmt_seq = new StringBuffer();
+		
+		this.parse_tree.moveCursorToChild(1);
+		
+		stmt_seq.append(" ");
+		stmt_seq.append(this.printStmt());
+		stmt_seq.append("\n");
+		
+		this.parse_tree.moveCursorUp();
+		
+		switch(this.parse_tree.getAlternativeNumber())
 		{
-		case 1:
+		case 1://<stmt>
+			//do nothing
 			break;
-		default://2
+		default://<stmt><stmt-seq>
+			this.parse_tree.moveCursorToChild(2);
+			stmt_seq.append(this.printStmtSeq());
+			this.parse_tree.moveCursorUp();
+			break;	
+		}
+		
+		return stmt_seq;
+	}
+	
+	/**
+	 * Does the stmt production rule in a pretty print format
+	 * 
+	 * @return the stmt as a StringBuffer
+	 */
+	private StringBuffer printStmt()
+	{
+		StringBuffer stmt = new StringBuffer();
+	
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://<assign>
+			this.parse_tree.moveCursorToChild(1);
+			stmt.append(this.printAssign());
+			break;
+		case 2://<if>
+			this.parse_tree.moveCursorToChild(1);
+			stmt.append(this.printIf());
+			break;
+		case 3://<loop>
+			this.parse_tree.moveCursorToChild(1);
+			stmt.append(this.printLoop());
+			break;
+		case 4://<in>
+			this.parse_tree.moveCursorToChild(1);
+			stmt.append(this.printInput());
+			break;
+		case 5://<out>
+			this.parse_tree.moveCursorToChild(1);
+			stmt.append(this.printOutput());
+			break;
+		default://<case>
+			this.parse_tree.moveCursorToChild(1);
+			stmt.append(this.printCase());
 			break;
 				
 		}
+		
+		this.parse_tree.moveCursorUp();
+		return stmt;
 	}
-	private void printStmt()
+	
+	/**
+	 * Does the assign production rule in a pretty print format
+	 * 
+	 * @return the assignment as a StringBuffer
+	 */
+	private StringBuffer printAssign()
 	{
-		switch(this.PT.getAlternativeNumber(my_row))
+		StringBuffer assign = new StringBuffer();
+		
+		this.parse_tree.moveCursorToChild(1);
+		
+		assign.append(this.parse_tree.getId());
+		assign.append(":=");
+		
+		this.parse_tree.moveCursorUp();
+		
+		this.parse_tree.moveCursorToChild(2);
+		
+		assign.append(this.printExpr());
+		
+		this.parse_tree.moveCursorUp();
+		assign.append(";");
+		
+		return assign;
+	}
+	
+	/**
+	 * Does the if production rule in a pretty print format
+	 * 
+	 * @return the if rule as a StringBuffer
+	 */
+	private StringBuffer printIf()
+	{
+		StringBuffer if_print = new StringBuffer();
+	
+		if_print.append("if");
+		
+		this.parse_tree.moveCursorToChild(1);
+	
+		if_print.append(this.printCond());
+		
+		this.parse_tree.moveCursorUp();
+		
+		if_print.append("then\n");
+		
+		this.parse_tree.moveCursorToChild(2);
+		
+		if_print.append(this.printStmtSeq());
+		
+		this.parse_tree.moveCursorUp();
+		
+		switch(this.parse_tree.getAlternativeNumber())
 		{
-		case 1:
+		case 1://if <cond> then <stmt-seq> endif;
+			//do nothing
 			break;
-		case 2:
+		default: //if <cond> then <stmt-seq> else <stmt-seq> endif;
+			this.parse_tree.moveCursorToChild(3);
+			if_print.append("else\n");
+			if_print.append(this.printStmtSeq());
+			this.parse_tree.moveCursorUp();
 			break;
-		case 3:
-			break;
-		case 4:
-			break;
-		case 5:
-			break;
-		default://2
-			break;
-				
 		}
-	}
-	private void printAssign()
-	{
+		if_print.append("endif;\n");
+		
+		return if_print;
 		
 	}
-	private void printIf()
+	
+	/**
+	 * Does the do-while loop in a pretty print format
+	 * 
+	 * @return the do-while loop as a StringBuffer
+	 */
+	private StringBuffer printLoop()
 	{
+		StringBuffer loop = new StringBuffer();
+		
+		loop.append("do\n");
+		this.parse_tree.moveCursorToChild(1);
+		
+		loop.append(this.printStmtSeq());
+		
+		this.parse_tree.moveCursorUp();
+		
+		loop.append("while");
+		
+		this.parse_tree.moveCursorToChild(2);
+		
+		loop.append(this.printCond());
+		
+		this.parse_tree.moveCursorUp();
+		
+		loop.append("enddo;");
+		
+		return loop;
+	}
+	
+	/**
+	 * Does the input production loop in a pretty print format
+	 * 
+	 * @return the input as a StringBuffer
+	 */
+	private StringBuffer printInput()
+	{
+		StringBuffer input = new StringBuffer();
+		
+		input.append("input ");
+		
+		this.parse_tree.moveCursorToChild(1);
+		
+		input.append(this.printIdList());
+		
+		this.parse_tree.moveCursorUp();
+		
+		input.append(";");
+		
+		return input;
+	}
+	
+	/**
+	 * Does the output production rule in a pretty print format
+	 * 
+	 * @return the output as a StringBuffer
+	 */
+	private StringBuffer printOutput()
+	{
+		StringBuffer output = new StringBuffer();
+		
+		output.append("output ");
+		
+		this.parse_tree.moveCursorToChild(1);
+		
+		output.append(this.printIdList());
+		
+		this.parse_tree.moveCursorUp();
+		
+		output.append(";");
+		
+		return output;
 		
 	}
-	private void printLoop()
+	
+	/**
+	 * Does the output production rule in a pretty print format
+	 * 
+	 * @return the output as a StringBuffer
+	 */
+	private StringBuffer printCase()
 	{
+		StringBuffer case_stmt = new StringBuffer();
+		
+		case_stmt.append("case ");
+		case_stmt.append(this.parse_tree.getId());
+		case_stmt.append(" of\n");
+		
+		this.parse_tree.moveCursorToChild(1);
+		case_stmt.append(this.printCaseListBlock());
+		
+		this.parse_tree.moveCursorUp();
+		
+		this.parse_tree.moveCursorToChild(2);
+		
+		case_stmt.append("\telse ");
+		
+		case_stmt.append(this.printExpr());
+		
+		this.parse_tree.moveCursorUp();
+		
+		case_stmt.append("end ;\n");
+		
+		return case_stmt;
+	}
+	
+	/**
+	 * Does the case list block production rule in a pretty print format
+	 * 
+	 * @return the output as a StringBuffer
+	 */
+	private StringBuffer printCaseListBlock()
+	{
+		StringBuffer list_block = new StringBuffer();
+		
+		list_block.append("\t");
+		
+		this.parse_tree.moveCursorToChild(1);
+		list_block.append(this.printCaseList());
+		this.parse_tree.moveCursorUp();
+		
+		list_block.append(":");
+		
+		this.parse_tree.moveCursorToChild(2);
+		list_block.append(this.printExpr());
+		this.parse_tree.moveCursorUp();
+		
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://<list>COLON<expr>
+			//do nothing
+			break;
+		default://<list>COLON<expr>BAR<list-block>
+			list_block.append("\n|");
+			this.parse_tree.moveCursorToChild(3);
+			list_block.append(this.printCaseListBlock());
+			this.parse_tree.moveCursorUp();
+			break;
+		}
+		return list_block;
+	}
+	
+	/**
+	 * Does the case list production rule in a pretty print format
+	 * 
+	 * @return the output as a string
+	 */
+	private StringBuffer printCaseList()
+	{
+		StringBuffer list = new StringBuffer();
+		
+		this.parse_tree.moveCursorToChild(1);
+		list.append(this.parse_tree.getConstant());
+		this.parse_tree.moveCursorUp();
+		
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://const, <list>
+			break;
+		default://const, <list> | const
+			list.append(",");
+			this.parse_tree.moveCursorToChild(2);
+			list.append(this.printCaseList());
+			this.parse_tree.moveCursorUp();
+		}
+		
+		return list;	
+	}
+	
+	/**
+	 * Does the condition production rule in a pretty print format
+	 * 
+	 * @return the condition as a StringBuffer
+	 */
+	private StringBuffer printCond()
+	{
+		StringBuffer cond = new StringBuffer();
+		
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://<cmpr>
+			this.parse_tree.moveCursorToChild(1);
+			cond.append(this.printCmpr());
+			break;
+		case 2://!<cond>
+			this.parse_tree.moveCursorToChild(1);
+			cond.append("!");
+			cond.append(this.printCond());
+			break;
+		case 3://(<cond>AND<cond>)
+			cond.append("(");
+			this.parse_tree.moveCursorToChild(1);
+			cond.append(this.printCond());
+			this.parse_tree.moveCursorUp();
+			cond.append(" AND ");
+			this.parse_tree.moveCursorToChild(2);
+			cond.append(this.printCond());
+			cond.append(")");
+			break;
+		default://(<cond>OR<cond>)
+			cond.append("(");
+			this.parse_tree.moveCursorToChild(1);
+			cond.append(this.printCond());
+			this.parse_tree.moveCursorUp();
+			cond.append("OR");
+			this.parse_tree.moveCursorToChild(2);
+			cond.append(this.printCond());
+			cond.append(")");
+			break;
+		
+		}
+		this.parse_tree.moveCursorToChild(1);
+		return cond;
+	}
+	
+	/**
+	 * Does the Comparison condition rule in a pretty print format
+	 * 
+	 * @return the comparison as a StringBuffer
+	 */
+	private StringBuffer printCmpr()
+	{
+		StringBuffer cmpr = new StringBuffer();
+		
+		cmpr.append("[");
+		this.parse_tree.moveCursorToChild(1);
+		
+		cmpr.append(this.printExpr());
+		this.parse_tree.moveCursorUp();
+		this.parse_tree.moveCursorToChild(2);
+		
+		cmpr.append(this.printCmprOp());
+		this.parse_tree.moveCursorUp();
+		this.parse_tree.moveCursorToChild(3);
+		
+		cmpr.append(this.printExpr());
+		this.parse_tree.moveCursorUp();
+		cmpr.append("]");
+		
+		return cmpr;
+	}
+	
+	/**
+	 * Does the Comparison operator rule in a pretty print format
+	 * 
+	 * @return the comparison operator as a StringBuffer
+	 */
+	private StringBuffer printCmprOp()
+	{
+		StringBuffer cmpr_op = new StringBuffer();
+		
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://<
+			cmpr_op.append("<");
+			break;
+		case 2://=
+			cmpr_op.append("=");
+			break;
+		case 3://!=
+			cmpr_op.append("!=");
+			break;
+		case 4://>
+			cmpr_op.append(">");
+			break;
+		case 5://>=
+			cmpr_op.append(">=");
+			break;
+		default://<=
+			cmpr_op.append("<=");
+			break;
+		}
+		return cmpr_op;
+	}
+	
+	/**
+	 * Does the expression in a pretty print format
+	 * 
+	 * @return the expression as a StringBuffer
+	 */
+	private StringBuffer printExpr()
+	{
+		StringBuffer expr = new StringBuffer();
+		
+		this.parse_tree.moveCursorToChild(1);
+		
+		expr.append(this.printTerm());
+		this.parse_tree.moveCursorUp();
+		
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://<term>
+			break;
+		case 2://<term> + <expr>
+			expr.append(" + ");
+			this.parse_tree.moveCursorToChild(2);
+			expr.append(this.printExpr());
+			this.parse_tree.moveCursorUp();
+			break;
+		default://<term> - <expr>
+			expr.append(" - ");
+			this.parse_tree.moveCursorToChild(2);
+			expr.append(this.printExpr());
+			this.parse_tree.moveCursorUp();
+			break;
+		}
+		
+		
+		return expr;
+	}
+	
+	/**
+	 * Does the term in a pretty print format
+	 * 
+	 * @return the term as a StringBuffer
+	 */
+	private StringBuffer printTerm()
+	{
+		StringBuffer term = new StringBuffer();
+		
+		this.parse_tree.moveCursorToChild(1);
+		
+		term.append(this.printFactor());
+		
+		this.parse_tree.moveCursorUp();
+		
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://<factor>
+			break;
+		default://<factor> * <term>
+			term.append(" * ");
+			this.parse_tree.moveCursorToChild(2);
+			term.append(this.printTerm());
+			this.parse_tree.moveCursorUp();
+			break;
+		}
+		return term;
+	}
+	
+	/**
+	 * Does the factor conditional rule in a pretty print format
+	 * @return
+	 */
+	private StringBuffer printFactor()
+	{
+		StringBuffer factor = new StringBuffer();
+		
+		switch(this.parse_tree.getAlternativeNumber())
+		{
+		case 1://const
+			this.parse_tree.moveCursorToChild(1);
+			factor.append(this.parse_tree.getConstant());
+			break;
+		case 2://id
+			this.parse_tree.moveCursorToChild(1);
+			factor.append(this.parse_tree.getId());
+			break;
+		case 3://-<factor>
+			this.parse_tree.moveCursorToChild(1);
+			factor.append("-");
+			factor.append(this.printFactor());
+			break;
+		default://(<expr>)
+			this.parse_tree.moveCursorToChild(1);
+			factor.append("(");
+			factor.append(this.printExpr());
+			factor.append(")");
+			break;
+		}
+		this.parse_tree.moveCursorUp();
+		
+		return factor;
 		
 	}
-	private void printInput()
-	{
-		
-	}
-	private void printOutput()
-	{
-		
-	}
-	private void printCase()
-	{
-		
-	}
-	private void printCaseListBlock()
-	{
-		
-	}
-	private void printCaseList()
-	{
-		
-	}
-	private void printCond()
-	{
-		
-	}
-	private void printCmpr()
-	{
-		
-	}
-	private void printCmprOp()
-	{
-		
-	}
-	private void printExpr()
-	{
-		
-	}
-	private void printTerm()
-	{
-		
-	}
-	private void printFactor()
-	{
-		
-	}
-	*/
+	
 	public static void main(String[] args)
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x      , y    , xy; int z, a    , b; begin input x; end"))));
-		p1.makeParseTree();
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x, y, xy; int z, a, b; begin input x:= 0; end"))));
 		
+		p1.makeParseTree();
 		Printer print = new Printer(p1.getParseTree());
-		print.makePrettyProgam();
+		print.printPrettyProgram();
 	}
 }

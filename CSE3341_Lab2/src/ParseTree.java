@@ -30,6 +30,7 @@ public class ParseTree {
 	private Map<Integer, String> symbol_table = null;
 	private Map<Integer, String> constants_table =null;
 	private Set<String> decl_table = null;
+	private List<Integer> id_index = null;
 	private Scanner scanner = null;
 	private LinkedList<Integer> parents = null;
 	
@@ -46,6 +47,7 @@ public class ParseTree {
 		this.symbol_table = new HashMap<Integer,String>();
 		this.constants_table = new HashMap<Integer, String>();
 		this.decl_table = new HashSet<String>();
+		this.id_index = new ArrayList<Integer>();
 		this.parents = new LinkedList<Integer>();
 		this.scanner = s;
 	}
@@ -126,7 +128,10 @@ public class ParseTree {
 			{
 				this.symbol_table.put(value, this.scanner.getTokenValue());
 				if(Parser.isProgramInDeclSeq())
+				{
 					this.decl_table.add(this.scanner.getTokenValue());
+					this.id_index.add(Parser.getParserIdIndex());
+				}
 				//decrement the ID index
 				Parser.decrementIDIndexBy2();
 			}
@@ -203,21 +208,6 @@ public class ParseTree {
 		return this.non_terminals.get(ParseTree.row_num).toString();
 	}
 	
-	/**
-	 * Clears the Parse Tree
-	 */
-	public static void clearParseTreeRowNum()
-	{
-		ParseTree.row_num = 0;
-	}
-	/**
-	 * Static method gets the row number of the Parse Tree table
-	 * @return
-	 */
-	public static int getParseTreeRowNum()
-	{
-		return ParseTree.row_num;
-	}
 	
 	/**
 	 * Gets the id of the Node from the symbol table
@@ -235,6 +225,30 @@ public class ParseTree {
 	public String getConstant()
 	{
 		return this.constants_table.get(ParseTree.row_num);
+	}
+	
+	/**
+	 * This method returns the index of the identifier for the symbol table described by a Hash Map
+	 * @return the id index of the Id
+	 */
+	public int getIDindex()
+	{
+		
+		/**
+		 * loop until the values in the id_index list and token_value match the symbol_table 
+		 * that has all the variables declared and stored
+		 */
+		int key = 0;
+		
+		for(int i = 0; i < this.id_index.size(); i++)
+		{
+			key = this.id_index.get(i);
+			
+			if(this.symbol_table.get(key).equals(this.scanner.getTokenValue()))
+				break;
+		}
+	
+		return key;
 	}
 
 }

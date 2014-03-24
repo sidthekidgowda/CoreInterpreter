@@ -399,7 +399,7 @@ public class Scanner {
 		if(this.token == null)
 			this.createToken();
 		
-		if(this.currentToken().token_type == t )
+		if(this.currentToken().token_type == t)
 			return true;
 		
 		return false;

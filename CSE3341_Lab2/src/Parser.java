@@ -43,6 +43,7 @@ public class Parser
 		//do not allow duplicate integer lists in lists and across lists
 		this.checkCaseDuplicates = new HashSet<Integer>();
 	}
+	
 	/**
 	 * This method decrements the Identifier index by 2
 	 */
@@ -50,6 +51,7 @@ public class Parser
 	{
 		Parser.ID_index-=2;
 	}
+	
 	/**
 	 * This method decrements the Constant index by 2
 	 */
@@ -58,6 +60,20 @@ public class Parser
 		Parser.Const_index-=2;
 	}
 	
+	/**
+	 * This method returns the value of the Parser.ID_index
+	 * @return Parser.ID_index
+	 */
+	public static int getParserIdIndex()
+	{
+		return Parser.ID_index;
+	}
+	
+	/**
+	 * Tells the ParseTree if the program is in the declaration sequence of the parse
+	 * 
+	 * @return true or false
+	 */
 	public static boolean isProgramInDeclSeq()
 	{
 		return Parser.decl_seq;
@@ -145,14 +161,14 @@ public class Parser
 	
 		this.parse_tree.addNonTerminal(NonTerminals.DECL_SEQ);
 		int decl = this.decl();
+		this.parse_tree.addChild(myRow, decl, "non-terminal");
 		
 		if(this.scanner.getTokenType() == TokenType.BEGIN)
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 1);
-			this.parse_tree.addChild(myRow, decl, "non-terminal");
 			
 		}
-		else //TokenType is INT
+		else if(this.scanner.getTokenType() == TokenType.INT) //TokenType is INT
 		{
 			this.parse_tree.addAlternativeNumber(myRow, 2);
 			int declSeq = declSeq();
@@ -217,7 +233,7 @@ public class Parser
 		if(!this.scanner.matchToken(TokenType.ID))
 			throw new IllegalArgumentException("Error: expecting an identifier in an id list production rule");
 		
-		//check and see if the identifier used is declared
+		//check and see if the identifier used is declared and assuming this is part of stmt seq
 		if(!this.parse_tree.checkIfVariableIsDeclared(this.scanner.getTokenValue()) && !Parser.decl_seq)
 				throw new IllegalArgumentException("Error: the identifier \""+this.scanner.getTokenValue()+"\""  
 					+ " has not been declared in the declaration sequence so it cannot be used.");
@@ -234,6 +250,10 @@ public class Parser
 				this.parse_tree.addChild(myRow, Parser.ID_index, "id");
 			else
 				throw new IllegalArgumentException("Error: the identifier "+this.scanner.getTokenValue() + " is declared more than once.");
+		}
+		else //add the ParserIDindex into the child from the HashMap
+		{
+			this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "id");
 		}
 		
 		this.scanner.nextToken();
@@ -377,6 +397,8 @@ public class Parser
 		if(!this.parse_tree.checkIfVariableIsDeclared(this.scanner.getTokenValue()))
 				throw new IllegalArgumentException("Error: the identifier \""+this.scanner.getTokenValue()+"\""  
 					+ " has not been declared in the declaration sequence so it cannot be used.");
+		
+		this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "identifier");
 		
 		this.scanner.nextToken();
 		
@@ -613,7 +635,7 @@ public class Parser
 		
 		this.parse_tree.addNonTerminal(NonTerminals.CASE);
 		this.parse_tree.addAlternativeNumber(myRow, 1);
-		this.parse_tree.addChild(myRow, Parser.ID_index, "id");
+		this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "id");
 		
 		this.scanner.nextToken();
 		
@@ -1074,7 +1096,7 @@ public class Parser
 			
 			
 			this.parse_tree.addAlternativeNumber(myRow, 2);
-			this.parse_tree.addChild(myRow, Parser.ID_index, "id");
+			this.parse_tree.addChild(myRow, this.parse_tree.getIDindex(), "id");
 			this.scanner.nextToken();
 		}
 		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
