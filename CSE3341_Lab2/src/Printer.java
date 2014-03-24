@@ -63,11 +63,15 @@ public class Printer {
 		
 		program.append("begin\n");
 		
+		this.parse_tree.moveCursorToRoot();
+		
 		this.parse_tree.moveCursorToChild(2);
 		
-		this.prettyProgram.append(this.printStmtSeq());
+		program.append(this.printStmtSeq());
 		
-		this.prettyProgram.append("end\n");
+		this.parse_tree.moveCursorToRoot();
+
+		program.append("end\n");
 		
 		return program;
 	}
@@ -673,9 +677,9 @@ public class Printer {
 		
 	}
 	
-	public static void main(String[] args)
+	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x, y, xy; int z, a, b; begin input x:= 0; end"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("t1.code"))));
 		
 		p1.makeParseTree();
 		Printer print = new Printer(p1.getParseTree());
