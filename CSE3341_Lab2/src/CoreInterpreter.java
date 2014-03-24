@@ -16,6 +16,7 @@ public class CoreInterpreter
 	
 	private Scanner lex_analyzer = null;
 	private Parser parser = null;
+	private Printer printer = null;
 
 
 	/**
@@ -39,7 +40,6 @@ public class CoreInterpreter
     	
     	//done, if parse tree is syntactically and semantically correct, printer and executor can be called
     	
-    	//create Printer and Executor objects
     }
 
     /**
@@ -51,6 +51,10 @@ public class CoreInterpreter
     {
 		/* Replace with your code */
 		/* Remember, this method should never return null */
+    	
+    	
+    	
+    	
     	return null;
     }
     

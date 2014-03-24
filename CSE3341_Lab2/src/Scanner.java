@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -457,7 +458,7 @@ public class Scanner {
 	public static void main(String[] args) throws FileNotFoundException
 	{
 		
-		Scanner sc = new Scanner(new BufferedReader(new FileReader("t1.code")));
+		Scanner sc = new Scanner(new BufferedReader(new StringReader("program int x; begin case x of 1,2,3,10: 2 + 4| 7,20,3  else 3 + 4 end; end")));
 		sc.printTokens();
 		
 	}

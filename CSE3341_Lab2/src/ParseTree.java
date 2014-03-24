@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,6 +31,9 @@ public class ParseTree {
 	private Map<Integer, String> constants_table =null;
 	private Set<String> decl_table = null;
 	private Scanner scanner = null;
+	private LinkedList<Integer> parents = null;
+	
+	private static int row_num;
 	
 	/**
 	 * Constructor creates the abstract Parse Tree Representation
@@ -42,7 +46,12 @@ public class ParseTree {
 		this.symbol_table = new HashMap<Integer,String>();
 		this.constants_table = new HashMap<Integer, String>();
 		this.decl_table = new HashSet<String>();
+		this.parents = new LinkedList<Integer>();
 		this.scanner = s;
+	}
+	static
+	{
+		ParseTree.row_num = 0;
 	}
 	
 	/**
@@ -53,6 +62,7 @@ public class ParseTree {
 	{
 		this.non_terminals.add(nt);
 	}
+	
 	/**
 	 * addAlternativeNumber uses the row_number as the key and the rule as the value
 	 * @param row_number
@@ -75,7 +85,7 @@ public class ParseTree {
 	}
 	
 	/**
-	 * This method
+	 * This method checks and see if a variable is declared before it is used.
 	 * @param identifier
 	 */
 	public boolean checkIfVariableIsDeclared(String identifier)
@@ -134,5 +144,97 @@ public class ParseTree {
 		
 	}
 	
+	/**
+	 * The method moveCursorToChild moves to the row number of the child
+	 * @param int child tells which child to move to
+	 */
+	public void moveCursorToChild(int child)
+	{
+		//add the parent row number
+		this.parents.add(ParseTree.row_num);
+		//move ParseTree to the child
+		ParseTree.row_num = this.children.get(ParseTree.row_num).get(--child);	
+	}
+	
+	/**
+	 * The method moveCursorUp moves the cursor to the parent of the child
+	 * precondition: not at root
+	 */
+	public void moveCursorUp()
+	{
+		if(ParseTree.row_num != 0)
+			ParseTree.row_num = this.parents.pollLast();
+		
+	}
+	
+	/**
+	 * The method moveCursorToRoot moves the cursor to the root
+	 */
+	public void moveCursorToRoot()
+	{
+		ParseTree.row_num = this.parents.getFirst();
+	}
+	
+	/**
+	 * The method checks if the cursor is at Root
+	 * @return True if the cursor is at the root, False if the cursor is not at the root
+	 */
+	public boolean isCursorAtRoot()
+	{
+		return ParseTree.row_num == 0;
+	}
+	
+	/**
+	 * Get the alternative number of the node
+	 * 
+	 * @return the alternative number
+	 */
+	public int getAlternativeNumber()
+	{
+		return this.alternatives.get(ParseTree.row_num);
+	}
+	
+	/**
+	 * The method Returns the String Representation of the non-terminal
+	 * @return the non-terminal as a string
+	 */
+	public String getNonTerminal()
+	{
+		return this.non_terminals.get(ParseTree.row_num).toString();
+	}
+	
+	/**
+	 * Clears the Parse Tree
+	 */
+	public static void clearParseTreeRowNum()
+	{
+		ParseTree.row_num = 0;
+	}
+	/**
+	 * Static method gets the row number of the Parse Tree table
+	 * @return
+	 */
+	public static int getParseTreeRowNum()
+	{
+		return ParseTree.row_num;
+	}
+	
+	/**
+	 * Gets the id of the Node from the symbol table
+	 * @return the string representation of the id
+	 */
+	public String getId()
+	{
+		return this.symbol_table.get(ParseTree.row_num);
+	}
+	
+	/**
+	 * Gets the constant of the Node from the symbol table
+	 * @return the string representation of the constant
+	 */
+	public String getConstant()
+	{
+		return this.constants_table.get(ParseTree.row_num);
+	}
 
 }

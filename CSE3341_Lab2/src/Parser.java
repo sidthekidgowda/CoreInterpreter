@@ -1,3 +1,8 @@
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Class Parser creates a Parse Tree with a given Scanner to create Tokens
  * 
@@ -9,11 +14,12 @@ public class Parser
 {
 	private Scanner scanner = null;
 	private ParseTree parse_tree = null;
+	private Set<Integer> checkCaseDuplicates = null;
 	private static int nextRow;//stores the global variable for the next available row
 	private static int ID_index; //used to reference ID symbol table
 	private static int Const_index;//used to reference Constant symbol table
 	private static boolean decl_seq;//used for semantic checking of multiple declared variables
-
+	
 	
 	/**
 	 * static constructor initializes the global variable nextRow
@@ -34,6 +40,8 @@ public class Parser
 	{
 		this.scanner = s;
 		this.parse_tree = new ParseTree(this.scanner);
+		//do not allow duplicate integer lists in lists and across lists
+		this.checkCaseDuplicates = new HashSet<Integer>();
 	}
 	/**
 	 * This method decrements the Identifier index by 2
@@ -704,6 +712,20 @@ public class Parser
 		if(!this.scanner.matchToken(TokenType.CONSTANT))
 			throw new IllegalArgumentException("Error: expecting a constant in the list production rule");
 		
+		//add first integer to the set
+		int num = Integer.parseInt(this.scanner.getTokenValue());
+		if(this.checkCaseDuplicates.isEmpty())
+			this.checkCaseDuplicates.add(num);
+		else
+		{
+			//check if duplicate integer is in the list or across other list
+			if(this.checkCaseDuplicates.contains(num))
+				throw new IllegalArgumentException("Error: duplicate integer values are not allowed to be in a list or across other lists." +
+						" The value " + this.scanner.getTokenValue()+ " has been duplicated");
+			else
+				this.checkCaseDuplicates.add(num);
+		}
+		
 		this.parse_tree.addNonTerminal(NonTerminals.LIST);
 		this.parse_tree.addChild(myRow, Parser.Const_index, "constant");
 		
@@ -1052,7 +1074,7 @@ public class Parser
 			
 			
 			this.parse_tree.addAlternativeNumber(myRow, 2);
-			this.parse_tree.addChild(myRow, Parser.ID_index, "identifier");
+			this.parse_tree.addChild(myRow, Parser.ID_index, "id");
 			this.scanner.nextToken();
 		}
 		else if(this.scanner.getTokenType() == TokenType.SUBT_OP)
@@ -1101,6 +1123,5 @@ public class Parser
 		return myRow;
 		
 	}
-
-		
+	
 }
