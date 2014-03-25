@@ -22,6 +22,7 @@ public class Printer {
 	public Printer(ParseTree pt)
 	{
 		this.parse_tree = pt;
+		ParseTree.clearParseTreeRowNum();
 		this.prettyProgram = new StringBuffer("");
 		this.prettyProgram.append(this.printProgram());
 	}
@@ -54,7 +55,7 @@ public class Printer {
 		
 		//move cursor to the root
 		
-		this.parse_tree.moveCursorToRoot();
+		this.parse_tree.moveCursorUp();
 		
 		program.append("program\n");
 		
@@ -70,7 +71,7 @@ public class Printer {
 		
 		program.append(this.printStmtSeq());
 		
-		this.parse_tree.moveCursorToRoot();
+		this.parse_tree.moveCursorUp();
 
 		program.append("end\n");
 		
@@ -88,6 +89,7 @@ public class Printer {
 		
 		this.parse_tree.moveCursorToChild(1);
 		
+		declSeq.append(" ");
 		declSeq.append(" ");
 		declSeq.append(this.printDecl());
 		declSeq.append("\n");
@@ -172,6 +174,7 @@ public class Printer {
 		
 		this.parse_tree.moveCursorToChild(1);
 		
+		stmt_seq.append(" ");
 		stmt_seq.append(" ");
 		stmt_seq.append(this.printStmt());
 		stmt_seq.append("\n");
@@ -282,7 +285,7 @@ public class Printer {
 		
 		this.parse_tree.moveCursorToChild(2);
 		
-		if_print.append(this.printStmtSeq());
+		if_print.append(this.addSpaces(this.printStmtSeq()));
 		
 		this.parse_tree.moveCursorUp();
 		
@@ -294,11 +297,11 @@ public class Printer {
 		default: //if <cond> then <stmt-seq> else <stmt-seq> endif;
 			this.parse_tree.moveCursorToChild(3);
 			if_print.append("else\n");
-			if_print.append(this.printStmtSeq());
+			if_print.append(this.addSpaces(this.printStmtSeq()));
 			this.parse_tree.moveCursorUp();
 			break;
 		}
-		if_print.append("endif;\n");
+		if_print.append("  endif;");
 		
 		return if_print;
 		
@@ -316,11 +319,14 @@ public class Printer {
 		loop.append("do\n");
 		this.parse_tree.moveCursorToChild(1);
 		
-		loop.append(this.printStmtSeq());
+
+		//add spaces into each line of the stmtSeq
+		
+		loop.append(this.addSpaces(this.printStmtSeq()));
 		
 		this.parse_tree.moveCursorUp();
 		
-		loop.append("while");
+		loop.append("  while");
 		
 		this.parse_tree.moveCursorToChild(2);
 		
@@ -381,6 +387,8 @@ public class Printer {
 	/**
 	 * Does the output production rule in a pretty print format
 	 * 
+	 * <case> ::= case id of <list-block> else <expr> end;
+	 * 
 	 * @return the output as a StringBuffer
 	 */
 	private StringBuffer printCase()
@@ -388,15 +396,21 @@ public class Printer {
 		StringBuffer case_stmt = new StringBuffer();
 		
 		case_stmt.append("case ");
-		case_stmt.append(this.parse_tree.getId());
-		case_stmt.append(" of\n");
 		
 		this.parse_tree.moveCursorToChild(1);
+		
+		case_stmt.append(this.parse_tree.getId());
+		
+		this.parse_tree.moveCursorUp();
+		case_stmt.append(" of\n");
+		
+		this.parse_tree.moveCursorToChild(2);
+		
 		case_stmt.append(this.printCaseListBlock());
 		
 		this.parse_tree.moveCursorUp();
 		
-		this.parse_tree.moveCursorToChild(2);
+		this.parse_tree.moveCursorToChild(3);
 		
 		case_stmt.append("\telse ");
 		
@@ -404,13 +418,15 @@ public class Printer {
 		
 		this.parse_tree.moveCursorUp();
 		
-		case_stmt.append("end ;\n");
+		case_stmt.append("\n  end;\n");
 		
 		return case_stmt;
 	}
 	
 	/**
 	 * Does the case list block production rule in a pretty print format
+	 * 
+	 * <list-block> ::= <list>COLON<expr> | <list>COLON <expr> BAR <list-block>
 	 * 
 	 * @return the output as a StringBuffer
 	 */
@@ -428,6 +444,8 @@ public class Printer {
 		
 		this.parse_tree.moveCursorToChild(2);
 		list_block.append(this.printExpr());
+		
+		list_block.append("\n");
 		this.parse_tree.moveCursorUp();
 		
 		switch(this.parse_tree.getAlternativeNumber())
@@ -436,7 +454,7 @@ public class Printer {
 			//do nothing
 			break;
 		default://<list>COLON<expr>BAR<list-block>
-			list_block.append("\n|");
+			list_block.append("  |");
 			this.parse_tree.moveCursorToChild(3);
 			list_block.append(this.printCaseListBlock());
 			this.parse_tree.moveCursorUp();
@@ -447,6 +465,8 @@ public class Printer {
 	
 	/**
 	 * Does the case list production rule in a pretty print format
+	 * 
+	 * <list> ::= const, <list>| const
 	 * 
 	 * @return the output as a string
 	 */
@@ -514,7 +534,7 @@ public class Printer {
 			break;
 		
 		}
-		this.parse_tree.moveCursorToChild(1);
+		this.parse_tree.moveCursorUp();
 		return cond;
 	}
 	
@@ -597,19 +617,18 @@ public class Printer {
 		case 1://<term>
 			break;
 		case 2://<term> + <expr>
-			expr.append(" + ");
+			expr.append("+");
 			this.parse_tree.moveCursorToChild(2);
 			expr.append(this.printExpr());
 			this.parse_tree.moveCursorUp();
 			break;
 		default://<term> - <expr>
-			expr.append(" - ");
+			expr.append("-");
 			this.parse_tree.moveCursorToChild(2);
 			expr.append(this.printExpr());
 			this.parse_tree.moveCursorUp();
 			break;
 		}
-		
 		
 		return expr;
 	}
@@ -634,7 +653,7 @@ public class Printer {
 		case 1://<factor>
 			break;
 		default://<factor> * <term>
-			term.append(" * ");
+			term.append("*");
 			this.parse_tree.moveCursorToChild(2);
 			term.append(this.printTerm());
 			this.parse_tree.moveCursorUp();
@@ -679,9 +698,37 @@ public class Printer {
 		
 	}
 	
+	private StringBuffer addSpaces(StringBuffer s)
+	{
+		
+		String strArray[] = s.toString().split("\n");
+		
+		
+		//add spaces
+		for(int i = 0; i < strArray.length; i++)
+		{
+			strArray[i] = "  " + strArray[i];
+		}
+		
+		s = new StringBuffer();
+		
+		for(int i = 0; i < strArray.length; i++)
+		{
+			s.append(strArray[i] + "\n");
+		}
+		return s;
+		
+	}
+	
+	
+	/**
+	 * 
+	 * @param args
+	 * @throws FileNotFoundException
+	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new FileReader("t1.code"))));
+		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x; begin if [x < 10] then if [x < 10] then if [x < 20] then input x; endif; endif; endif; end"))));
 		
 		p1.makeParseTree();
 		Printer print = new Printer(p1.getParseTree());
