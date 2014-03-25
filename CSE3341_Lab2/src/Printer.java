@@ -33,6 +33,7 @@ public class Printer {
 	{
 		System.out.println(this.prettyProgram.toString());
 	}
+	
 	/**
 	 * 
 	 * @return the prettyProgram as a String
@@ -41,6 +42,7 @@ public class Printer {
 	{
 		return this.prettyProgram.toString();
 	}
+	
 	/**
 	 * Does the program production rule in a pretty print format
 	 * 
@@ -51,9 +53,8 @@ public class Printer {
 		StringBuffer program = new StringBuffer();
 		
 		//move cursor to the root
-		//if the cursor is not at the top of the root, then move it there
-		if(!this.parse_tree.isCursorAtRoot())
-			this.parse_tree.moveCursorToRoot();
+		
+		this.parse_tree.moveCursorToRoot();
 		
 		program.append("program\n");
 		
@@ -63,7 +64,7 @@ public class Printer {
 		
 		program.append("begin\n");
 		
-		this.parse_tree.moveCursorToRoot();
+		this.parse_tree.moveCursorUp();
 		
 		this.parse_tree.moveCursorToChild(2);
 		
@@ -75,6 +76,7 @@ public class Printer {
 		
 		return program;
 	}
+	
 	/**
 	 * Does the declSeq production rule in a pretty print format
 	 * 
