@@ -90,17 +90,14 @@ public class Printer {
 		declSeq.append("\n");
 		
 		this.parse_tree.moveCursorUp();
-		switch(this.parse_tree.getAlternativeNumber())
+		
+		if(this.parse_tree.getAlternativeNumber() ==2)
 		{
-		case 1://<decl>
-			//do nothing
-			break;
-		default://<decl><decl-seq>
 			this.parse_tree.moveCursorToChild(2);
 			declSeq.append(this.printDeclSeq());
 			this.parse_tree.moveCursorUp();
-			break;	
 		}
+	
 		return declSeq;
 		
 	}
@@ -141,17 +138,13 @@ public class Printer {
 		
 		this.parse_tree.moveCursorUp();
 		
-		switch(this.parse_tree.getAlternativeNumber())
+		if(this.parse_tree.getAlternativeNumber() == 2)
 		{
-		case 1://id
-			//do nothing
-			break;
-		default://id, <id-list>
 			id_list.append(",");
 			this.parse_tree.moveCursorToChild(2);
 			id_list.append(this.printIdList());
 			this.parse_tree.moveCursorUp();
-			break;	
+				
 		}
 		
 		return id_list;
@@ -176,16 +169,11 @@ public class Printer {
 		
 		this.parse_tree.moveCursorUp();
 		
-		switch(this.parse_tree.getAlternativeNumber())
+		if(this.parse_tree.getAlternativeNumber() ==2)
 		{
-		case 1://<stmt>
-			//do nothing
-			break;
-		default://<stmt><stmt-seq>
 			this.parse_tree.moveCursorToChild(2);
 			stmt_seq.append(this.printStmtSeq());
 			this.parse_tree.moveCursorUp();
-			break;	
 		}
 		
 		return stmt_seq;
@@ -284,17 +272,12 @@ public class Printer {
 		
 		this.parse_tree.moveCursorUp();
 		
-		switch(this.parse_tree.getAlternativeNumber())
+		if(this.parse_tree.getAlternativeNumber() == 2)
 		{
-		case 1://if <cond> then <stmt-seq> endif;
-			//do nothing
-			break;
-		default: //if <cond> then <stmt-seq> else <stmt-seq> endif;
 			this.parse_tree.moveCursorToChild(3);
 			if_print.append("else\n");
 			if_print.append(this.addSpaces(this.printStmtSeq()));
 			this.parse_tree.moveCursorUp();
-			break;
 		}
 		if_print.append("  endif;");
 		
@@ -443,18 +426,15 @@ public class Printer {
 		list_block.append("\n");
 		this.parse_tree.moveCursorUp();
 		
-		switch(this.parse_tree.getAlternativeNumber())
+		if(this.parse_tree.getAlternativeNumber() == 2)
 		{
-		case 1://<list>COLON<expr>
-			//do nothing
-			break;
-		default://<list>COLON<expr>BAR<list-block>
+		
 			list_block.append("  |");
 			this.parse_tree.moveCursorToChild(3);
 			list_block.append(this.printCaseListBlock());
 			this.parse_tree.moveCursorUp();
-			break;
 		}
+		
 		return list_block;
 	}
 	
@@ -473,11 +453,8 @@ public class Printer {
 		list.append(this.parse_tree.getConstant());
 		this.parse_tree.moveCursorUp();
 		
-		switch(this.parse_tree.getAlternativeNumber())
+		if(this.parse_tree.getAlternativeNumber() == 2)
 		{
-		case 1://const, <list>
-			break;
-		default://const, <list> | const
 			list.append(",");
 			this.parse_tree.moveCursorToChild(2);
 			list.append(this.printCaseList());
@@ -643,16 +620,13 @@ public class Printer {
 		
 		this.parse_tree.moveCursorUp();
 		
-		switch(this.parse_tree.getAlternativeNumber())
+		if(this.parse_tree.getAlternativeNumber() == 2)
 		{
-		case 1://<factor>
-			break;
-		default://<factor> * <term>
 			term.append("*");
 			this.parse_tree.moveCursorToChild(2);
 			term.append(this.printTerm());
 			this.parse_tree.moveCursorUp();
-			break;
+			
 		}
 		return term;
 	}
@@ -693,6 +667,13 @@ public class Printer {
 		
 	}
 	
+	/**
+	 * This method adds spaces to the StringBuffer for a pretty print format
+	 *
+	 * @param the new StringBuffer
+	 * 
+	 * @return
+	 */
 	private StringBuffer addSpaces(StringBuffer s)
 	{
 		

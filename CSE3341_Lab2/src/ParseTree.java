@@ -159,8 +159,8 @@ public class ParseTree {
 	{
 		//add the parent row number
 		this.parents.add(ParseTree.row_num);
-		//move ParseTree to the child
 		
+		//move ParseTree to the child
 		ParseTree.row_num = this.children.get(ParseTree.row_num).get(--child);	
 	}
 	
