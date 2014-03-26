@@ -1,0 +1,18 @@
+
+program int x,y,xy;
+
+         begin  
+
+
+         do 
+
+         input x;
+
+         input y;
+
+         while [x > y]
+
+
+
+
+          end  

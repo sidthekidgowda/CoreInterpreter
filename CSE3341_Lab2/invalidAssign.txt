@@ -1,0 +1,18 @@
+
+program int X, XY;
+
+         begin  
+
+         X := Y;
+
+	     
+
+
+
+
+
+
+
+
+
+          end  

@@ -1,0 +1,14 @@
+
+program int X , Y , XY 	;
+		int a, b, cd;
+
+		int a, z,
+
+         begin  input X; Y  := 0 ;
+     
+
+
+
+	       output Y ;
+
+          end  

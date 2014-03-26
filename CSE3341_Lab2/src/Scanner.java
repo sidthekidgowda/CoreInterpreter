@@ -218,7 +218,7 @@ public class Scanner {
 						this.token = new Token(make_token.toString(), TokenType.NOT_EQUAL);
 						this.input.deleteCharAt(0);
 					}
-					else
+					else 
 						this.token = new Token(make_token.toString(), TokenType.NOT);
 					break;
 					
@@ -245,6 +245,7 @@ public class Scanner {
 					}
 					else
 						this.token = new Token(make_token.toString(), TokenType.GREATER_THAN);
+						
 					break;
 				default://error cases
 					throw new IllegalArgumentException("Illegal Core Grammar Character entered: " + this.input.charAt(0));
@@ -359,19 +360,6 @@ public class Scanner {
 	{
 		//StringBuffer counts empty string as part of the StringBuffer
 		return this.input.length() == 1;
-	}
-	
-	/**
-	 * toString() method prints the Token and the Token Value in the correct format
-	 * 
-	 * the Tokens
-	 */
-	public String toString()
-	{
-		if(this.token.token_type == TokenType.CONSTANT || this.token.token_type == TokenType.ID)
-			return this.token.token_type.toString() + "[" + this.token.token_value + "]";
-		else
-			return this.token.token_type.toString();
 	}
 	
 	/**

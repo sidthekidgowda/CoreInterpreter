@@ -1,0 +1,9 @@
+
+program int X , Y , XY 	;
+
+         begin  input X Y  := 0 ;
+     
+
+	       output Y ;
+
+          end  

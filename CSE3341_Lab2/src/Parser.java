@@ -18,17 +18,6 @@ public class Parser
 	private static int Const_index;//used to reference Constant symbol table
 	private static boolean decl_seq;//used for semantic checking of multiple declared variables
 	
-	
-	/**
-	 * static constructor initializes the global variable nextRow
-	 */
-	static{
-		Parser.nextRow = 0;
-		Parser.ID_index = -1;
-		Parser.Const_index = -2;
-		Parser.decl_seq = true;
-	}
-	
 	/**
 	 * Constructor for the Parser
 	 * Takes a Scanner reference so it can ask for Tokens
@@ -40,6 +29,10 @@ public class Parser
 		this.parse_tree = new ParseTree(this.scanner);
 		//do not allow duplicate integer lists in lists and across lists
 		this.checkCaseDuplicates = new HashSet<Integer>();
+		Parser.nextRow = 0;
+		Parser.ID_index = -1;
+		Parser.Const_index = -2;
+		
 	}
 	
 	/**
@@ -115,6 +108,7 @@ public class Parser
 		this.parse_tree.addAlternativeNumber(myRow, 1);
 	
 		this.scanner.nextToken();
+		Parser.decl_seq = true;
 		int declSeq = this.declSeq();
 		
 		this.parse_tree.addChild(myRow, declSeq, "non-terminal");
@@ -247,7 +241,7 @@ public class Parser
 			if(!this.parse_tree.containsMutlipleDeclaredVariable())
 				this.parse_tree.addChild(myRow, Parser.ID_index, "identifier");
 			else
-				throw new IllegalArgumentException("Error: the identifier "+this.scanner.getTokenValue() + " is declared more than once.");
+				throw new IllegalArgumentException("Error: the identifier \"" + this.scanner.getTokenValue() +"\"" + " is declared more than once.");
 		}
 		else //add the ParserIDindex into the child from the HashMap
 		{
@@ -362,6 +356,10 @@ public class Parser
 			this.parse_tree.addAlternativeNumber(myRow, 6);
 			int case_stmt = this.case_stmt();
 			this.parse_tree.addChild(myRow, case_stmt, "non-terminal");
+		}
+		else //throw an error
+		{
+			throw new IllegalArgumentException("Error: this is an invalid stmt");
 		}
 	
 		return myRow;
@@ -826,6 +824,11 @@ public class Parser
 					throw new IllegalArgumentException("Error: expecting the keyword \"OR\" in the conditional production rule");
 				this.parse_tree.addAlternativeNumber(myRow, 4);
 			}
+			else //throw an error
+			{
+				throw new IllegalArgumentException("Error: \""+this.scanner.getTokenValue()+"\""  
+					+ " is not the keyword AND/OR");
+			}
 			
 			this.scanner.nextToken();
 			cond = this.cond();
@@ -946,6 +949,11 @@ public class Parser
 				throw new IllegalArgumentException("Error: Less than or equal to symbol expected \"<=\" in the comparison operator production rule");
 			
 			this.parse_tree.addAlternativeNumber(myRow, 6);
+		}
+		else
+		{
+			throw new IllegalArgumentException("Error:\""+this.scanner.getTokenValue()+"\""  
+					+ " is not a comparison operator.");
 		}
 		
 		this.parse_tree.addChild(myRow, null, "cmpr-op");
@@ -1138,6 +1146,10 @@ public class Parser
 			
 			this.scanner.nextToken();
 				
+		}
+		else
+		{
+			throw new IllegalArgumentException("Error: \""+this.scanner.getTokenValue()+"\" is not valid in the factor rule");
 		}
 		return myRow;
 		

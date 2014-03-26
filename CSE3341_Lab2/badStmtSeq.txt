@@ -1,0 +1,18 @@
+
+program int X , Y , XY;
+
+         begin  
+
+
+
+	     
+
+
+
+
+
+
+
+	     
+
+          end  

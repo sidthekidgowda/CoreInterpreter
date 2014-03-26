@@ -1,0 +1,13 @@
+
+program int x,y,xy;
+
+         begin
+
+         hello x;
+
+         input y;
+
+
+
+
+          end  

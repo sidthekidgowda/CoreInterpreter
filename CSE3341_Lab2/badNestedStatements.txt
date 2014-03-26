@@ -1,0 +1,39 @@
+program
+
+ int x, y, xy;
+
+ int a, b, cd;
+
+
+ begin
+
+input x;
+input a;
+
+ if[x != 0]
+
+ then 
+
+
+ case a of 1,2,3: a + x else a + x end; 
+
+ if[a > x]
+
+ then
+
+ do
+
+ if[x < a]
+
+ then
+
+ case b of 5: a else 20 end;
+
+ endif;
+
+ while [a < b] enddo;
+
+
+ endif;
+
+ end

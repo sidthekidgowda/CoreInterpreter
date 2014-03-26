@@ -1,0 +1,20 @@
+
+program int x,y,xy;
+
+         begin  
+
+
+         if [x <! y]
+
+         then
+
+         input x;
+
+         endif;
+
+         
+
+
+
+
+          end  

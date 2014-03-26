@@ -1,0 +1,24 @@
+ program int AbC,D;int F; int X; int G, H,
+
+
+
+
+
+
+
+
+
+      							Z;
+
+          begin input AbC; input 
+	F;D:=F;	
+
+
+               do if [AbC > D] then AbC:= 
+                                                      AbC - D;
+                                     else D := D - AbC;
+
+                                endif;while[AbC!=D]enddo;output D;end
+
+   
+

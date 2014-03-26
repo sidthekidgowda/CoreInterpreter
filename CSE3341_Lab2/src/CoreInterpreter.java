@@ -1,6 +1,4 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.List;
 
 /**
@@ -80,17 +78,4 @@ public class CoreInterpreter
     	return this.executor.outputValues();
     }
     
-    /**
-     * Delete This Main method used only for testing
-     * @throws FileNotFoundException 
-     */
-    
-    public static void main(String[] args) throws FileNotFoundException
-    {
-    	CoreInterpreter c = new CoreInterpreter(new BufferedReader(new FileReader("t1.code")));
-    	CoreInterpreter c2 = new CoreInterpreter(new BufferedReader(new FileReader("t3.code")));
-    	CoreInterpreter c3 = new CoreInterpreter(new BufferedReader(new FileReader("t4.code")));
-        
-        
-    }
 }
