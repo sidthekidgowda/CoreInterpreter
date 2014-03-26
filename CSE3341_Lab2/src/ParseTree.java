@@ -165,6 +165,16 @@ public class ParseTree {
 	}
 	
 	/**
+	 * This method moves the Cursor To The Root
+	 */
+	public void moveCursorToRoot()
+	{
+		if(ParseTree.row_num != 0)
+			ParseTree.row_num = 0;
+	}
+	
+	
+	/**
 	 * The method moveCursorUp moves the cursor to the parent of the child
 	 * precondition: not at root
 	 */
@@ -203,13 +213,7 @@ public class ParseTree {
 		return this.non_terminals.get(ParseTree.row_num).toString();
 	}
 	
-	/**
-	 * Clears the Parse Tree
-	 */
-	public static void clearParseTreeRowNum()
-	{
-		ParseTree.row_num = 0;
-	}
+	
 	/**
 	 * Static method gets the row number of the Parse Tree table
 	 * @return

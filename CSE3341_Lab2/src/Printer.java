@@ -1,8 +1,3 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.StringReader;
-
 /**
  * Class Printer prints the program in a pretty print format and stores it in a String called prettyProgram
  * 
@@ -22,7 +17,7 @@ public class Printer {
 	public Printer(ParseTree pt)
 	{
 		this.parse_tree = pt;
-		ParseTree.clearParseTreeRowNum();
+		this.parse_tree.moveCursorToRoot();
 		this.prettyProgram = new StringBuffer("");
 		this.prettyProgram.append(this.printProgram());
 	}
@@ -53,7 +48,7 @@ public class Printer {
 	{
 		StringBuffer program = new StringBuffer();
 		
-		//move cursor to the root
+		//move cursor to the root if it is not there
 		
 		this.parse_tree.moveCursorUp();
 		
@@ -720,18 +715,4 @@ public class Printer {
 		
 	}
 	
-	
-	/**
-	 * 
-	 * @param args
-	 * @throws FileNotFoundException
-	 */
-	public static void main(String[] args) throws FileNotFoundException
-	{
-		Parser p1 = new Parser(new Scanner(new BufferedReader(new StringReader("program int x; begin if [x < 10] then if [x < 10] then if [x < 20] then input x; endif; endif; endif; end"))));
-		
-		p1.makeParseTree();
-		Printer print = new Printer(p1.getParseTree());
-		print.printPrettyProgram();
-	}
 }

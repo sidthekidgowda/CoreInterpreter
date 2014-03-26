@@ -17,6 +17,7 @@ public class CoreInterpreter
 	private Scanner lex_analyzer = null;
 	private Parser parser = null;
 	private Printer printer = null;
+	private Executor executor = null;
 
 
 	/**
@@ -55,7 +56,6 @@ public class CoreInterpreter
     	this.printer = new Printer(this.parser.getParseTree());
     	
     	return this.printer.getPrettyProgram();
-    	//return null;
     }
     
     
@@ -70,7 +70,14 @@ public class CoreInterpreter
     {
 		/* Replace with your code */
 		/* Remember, this method should never return null */
-        return null;
+    	
+    	this.executor = new Executor(this.parser.getParseTree(), input);
+    	
+    	//execute the program
+    	this.executor.executeProgram();
+    	
+    	
+    	return this.executor.outputValues();
     }
     
     /**

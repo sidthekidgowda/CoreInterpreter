@@ -1,8 +1,5 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +57,7 @@ public class Scanner {
 		}
 		catch (IOException e)
 		{
-			System.out.println("General IO Exception: " + e.getMessage());
+			System.out.println("Could not read the input program: " + e.getMessage());
 		}
 	}
 	
@@ -447,19 +444,6 @@ public class Scanner {
 		this.createToken();
 		System.out.println(this.toString());
 		System.out.println();
-		
-	}
-	
-	/**
-	 * Test Scanner input main method - delete after
-	 * @param args
-	 * @throws FileNotFoundException 
-	 */
-	public static void main(String[] args) throws FileNotFoundException
-	{
-		
-		Scanner sc = new Scanner(new BufferedReader(new StringReader("program int x; begin case x of 1,2,3,10: 2 + 4| 7,20,3  else 3 + 4 end; end")));
-		sc.printTokens();
 		
 	}
 	
