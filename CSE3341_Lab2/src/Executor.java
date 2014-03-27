@@ -58,7 +58,7 @@ public class Executor {
 				//do not add empty lines
 				if(!read_line.matches("\\s*"))
 				{
-					this.hold_input.append(read_line.trim());
+					this.hold_input.append(read_line.trim() + " ");
 				}
 				
 			}
@@ -621,6 +621,18 @@ public class Executor {
 	private int evaluateTerm()
 	{
 		int value = 0;
+		
+		//id
+		if(ParseTree.getParseTreeRowNum() < 0 && ParseTree.getParseTreeRowNum() % 2 != 0)
+		{
+			return this.sym_t.getValue(this.parse_tree.getId());
+		}
+		//constant
+		if(ParseTree.getParseTreeRowNum() < 0 && ParseTree.getParseTreeRowNum()%2 == 0)
+		{
+			return Integer.parseInt(this.parse_tree.getConstant());
+		}
+		
 		
 		this.parse_tree.moveCursorToChild(1);
 		

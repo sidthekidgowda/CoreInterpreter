@@ -275,7 +275,7 @@ public class Printer {
 		if(this.parse_tree.getAlternativeNumber() == 2)
 		{
 			this.parse_tree.moveCursorToChild(3);
-			if_print.append("else\n");
+			if_print.append("  else\n");
 			if_print.append(this.addSpaces(this.printStmtSeq()));
 			this.parse_tree.moveCursorUp();
 		}
