@@ -1,0 +1,42 @@
+program int x;
+
+begin
+
+if (([x > 1] AND [x < 1]) OR (([x > 1] AND [x < 1]) AND ([x > 1] AND [x < 1])))
+
+
+then
+
+
+	if (([x > 1] AND [x < 1]) OR (([x > 1] AND [x < 1]) AND ([x > 1] AND [x < 1])))
+
+
+	then
+
+	x:= 10;
+
+	else
+
+
+		if (([x > 1] AND [x < 1]) OR (([x > 1] AND [x < 1]) AND ([x > 1] AND [x < 1])))
+
+
+		then
+
+
+			if (([x > 1] AND [x < 1]) OR (([x > 1] AND [x < 1]) AND ([x > 1] AND [x < 1])))
+
+
+			then
+				x:= 10;
+			endif;
+
+		endif;
+
+	endif;
+
+endif;
+
+
+end
+

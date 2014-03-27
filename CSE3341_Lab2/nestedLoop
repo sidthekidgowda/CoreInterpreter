@@ -1,0 +1,26 @@
+program
+
+int x;
+
+int y,z;
+
+begin
+
+
+do
+	do
+
+		do
+	
+		
+		x:=10;
+		
+		while ([x>10] AND [x<10]) enddo;
+		
+		x:= 10;
+	
+	while ([x>10] AND [x<10]) enddo;
+	
+while (([x > 1] AND [x < 1]) OR (([x > 1] AND [x < 1]) AND ([x > 1] AND [x < 1]))) enddo;
+
+end

@@ -1,8 +1,8 @@
 import static org.junit.Assert.*;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+
 
 import org.junit.Test;
 
@@ -366,6 +366,7 @@ public class ParserTest {
         	p = new Parser(new Scanner(new BufferedReader(new FileReader("goodDeclSeq"))));
         	p.makeParseTree();
         	flag = true;
+        	
         } 
         catch (IllegalArgumentException e) 
         {
@@ -374,19 +375,122 @@ public class ParserTest {
         assertTrue(flag);
         
         //now nested if statements and case statements and test the loops
+        flag = false;
+        try 
+        {
+        	p = new Parser(new Scanner(new BufferedReader(new FileReader("nestedIfandCaseLoops.txt"))));
+        	p.makeParseTree();
+        	flag = true;
+        } 
+        catch (IllegalArgumentException e) 
+        {
+        	//do nothing
+        } 
+        assertTrue(flag);
         
         
+        //nested conditions
+        flag = false;
+        try 
+        {
+        	p = new Parser(new Scanner(new BufferedReader(new FileReader("nestedConditions.txt"))));
+        	p.makeParseTree();
+        	flag = true;
+        } 
+        catch (IllegalArgumentException e) 
+        {
+        	//do nothing
+        } 
+        assertTrue(flag);
+       
+      
+        //nested expressions
+        flag = false;
+        try 
+        {
+        	p = new Parser(new Scanner(new BufferedReader(new FileReader("nestedExpressions.txt"))));
+        	p.makeParseTree();
+        	flag = true;
+        } 
+        catch (IllegalArgumentException e) 
+        {
+        	//do nothing
+        } 
+        assertTrue(flag);
         
+        //nested do while
+        flag = false;
+        try 
+        {
+        	p = new Parser(new Scanner(new BufferedReader(new FileReader("nestedLoop"))));
+        	p.makeParseTree();
+        	flag = true;
+        } 
+        catch (IllegalArgumentException e) 
+        {
+        	//do nothing
+        } 
+        assertTrue(flag);
+        
+        //nested if statements
+        flag = false;
+        try 
+        {
+        	p = new Parser(new Scanner(new BufferedReader(new FileReader("nestedIf.txt"))));
+        	p.makeParseTree();
+        	flag = true;
+        } 
+        catch (IllegalArgumentException e) 
+        {
+        	//do nothing
+        } 
+        assertTrue(flag);
 
 	}
 
 
-	/*
+	
 	@Test
-	public void testGetParseTree() {
-		fail("Not yet implemented");
+	public void testGetParseTree() throws FileNotFoundException {
+		
+		Parser p = null;
+		//ask for null parse tree
+		boolean flag = false;
+		try
+		{
+			p = new Parser(new Scanner(null));
+			p.makeParseTree();
+			
+			p.getParseTree();
+		}
+		catch(NullPointerException e)
+		{
+			flag = true;
+		}
+		assertTrue(flag);
+		
+		//ask for a parse tree that gets made
+		
+		flag = false;
+		
+		try
+		{
+			p = new Parser(new Scanner(new BufferedReader(new FileReader("nestedIf.txt"))));
+			p.makeParseTree();
+			
+			p.getParseTree();
+			flag = true;
+		}
+		catch(NullPointerException e)
+		{
+			//do nothing
+		}
+		assertTrue(flag);
+		
+		
+		
 	}
-	*/
+	
 
 	
 }
