@@ -17,6 +17,7 @@ public class Executor {
 	private static boolean InDeclSeq;
 	private static boolean ReadInput;
 	private static boolean OutputVariable;
+	private static int whichListBlock;
 	
 	private List<Integer> output_values = null;
 	private List<Integer> input_values = null;
@@ -42,6 +43,7 @@ public class Executor {
 	{
 		this.output_values = new ArrayList<Integer>();
 		this.input_values = new ArrayList<Integer>();
+		Executor.whichListBlock = 0;
 		
 		//create the inner symbol table reference
 		this.sym_t = new SymbolTable();
@@ -376,39 +378,48 @@ public class Executor {
 	
 	/**
 	 * This method executes the Case Statement
+	 *  <case> ::= case id of <list-block> else <expr> end;
+	 *  <list-block> ::= <list>COLON<expr> | <list>COLON <expr> BAR <list-block>
+	 *  <list> ::= const, <list>| const
 	 */
 	private void exceuteCase()
 	{
+		//child-id
 		this.parse_tree.moveCursorToChild(1);
 		
 		int id = this.sym_t.getValue(this.parse_tree.getId());
+		String id_string = this.parse_tree.getId();
 		
+		//parent - case
 		this.parse_tree.moveCursorUp();
 		
+		//now on child - list-block
 		this.parse_tree.moveCursorToChild(2);
 		
 		if(this.evaluateListBlock(id))
 		{
+			//list block
 			id = this.executeListBlock();
 			
-			this.parse_tree.moveCursorUp();
-			this.parse_tree.moveCursorToChild(1);
+			this.sym_t.setValue(id_string, id);
 			
-			this.sym_t.setValue(this.parse_tree.getId(), id);
-			
+			//now on case
 			this.parse_tree.moveCursorUp();
+			
 		}
 		else
 		{
+			//back on case
 			this.parse_tree.moveCursorUp();
+			
+			//child-else
 			this.parse_tree.moveCursorToChild(3);
 			
 			id = this.evaluateExpression();
 			
 			this.parse_tree.moveCursorUp();
-			this.parse_tree.moveCursorToChild(1);
-			this.sym_t.setValue(this.parse_tree.getId(), id);
-			this.parse_tree.moveCursorUp();
+			
+			this.sym_t.setValue(id_string, id);
 		}
 	
 	}
@@ -419,28 +430,46 @@ public class Executor {
 	 */
 	private int executeListBlock()
 	{
+		//get to the correct list block
+		for(int i = 0; i < Executor.whichListBlock; i++)
+		{
+			this.parse_tree.moveCursorToChild(3);
+			
+		}
 		this.parse_tree.moveCursorToChild(2);
 		
 		int result = this.evaluateExpression();
-		
 		this.parse_tree.moveCursorUp();
+		
+		//go back to original position
+		for(int i = Executor.whichListBlock; i >0; i--)
+		{
+			this.parse_tree.moveCursorUp();
+		}
 		
 		return result;
 	}
 	
 	/**
 	 * This method evaluates the List Block and returns true or false
+	 * <case> ::= case id of <list-block> else <expr> end;
+	 * <list-block> ::= <list>COLON<expr> | <list>COLON <expr> BAR <list-block>
+	 * <list> ::= const, <list>| const
 	 * @return true or false
 	 */
 	private boolean evaluateListBlock(int id)
 	{
+		//coming in on list-block
 		boolean result = false;
 		
+		//now on the list
 		this.parse_tree.moveCursorToChild(1);
 		
 		if(this.evaluateList(id))
 		{
 			result = true;
+			//now on list block
+			this.parse_tree.moveCursorUp();
 		}
 		else
 		{
@@ -448,25 +477,35 @@ public class Executor {
 			
 			if(this.parse_tree.getAlternativeNumber() == 2)
 			{
-				this.parse_tree.moveCursorToChild(2);
+				Executor.whichListBlock++;
+				this.parse_tree.moveCursorToChild(3);
 				result = this.evaluateListBlock(id);
+				this.parse_tree.moveCursorUp();
+				//now on child list-block
 			}
 		}
 		
 		return result;
 	}
 	
+	
 	/**
 	 * This method evaluates the individual list and sees if the identifier is matched
+	 * <case> ::= case id of <list-block> else <expr> end;
+	 *  <list-block> ::= <list>COLON<expr> | <list>COLON <expr> BAR <list-block>
+	 *  <list> ::= const, <list>| const
 	 */
 	private boolean evaluateList(int id)
 	{
+		//list1-> const, ->list2
+		
 		boolean result = false;
 		
+		//now on constant
 		this.parse_tree.moveCursorToChild(1);
 		
 		int constant = Integer.parseInt(this.parse_tree.getConstant());
-		
+		//now on list
 		this.parse_tree.moveCursorUp();
 		
 		if(id == constant)
@@ -474,9 +513,12 @@ public class Executor {
 		else
 		{
 			if(this.parse_tree.getAlternativeNumber() == 2)
-			{
+			{ 	//now on list2
 				this.parse_tree.moveCursorToChild(2);
+				
 				result = this.evaluateList(id);
+				
+				//now on list
 				this.parse_tree.moveCursorUp();
 			}
 		}
@@ -622,18 +664,6 @@ public class Executor {
 	{
 		int value = 0;
 		
-		//id
-		if(ParseTree.getParseTreeRowNum() < 0 && ParseTree.getParseTreeRowNum() % 2 != 0)
-		{
-			return this.sym_t.getValue(this.parse_tree.getId());
-		}
-		//constant
-		if(ParseTree.getParseTreeRowNum() < 0 && ParseTree.getParseTreeRowNum()%2 == 0)
-		{
-			return Integer.parseInt(this.parse_tree.getConstant());
-		}
-		
-		
 		this.parse_tree.moveCursorToChild(1);
 		
 		value = this.evaluateFactor();
@@ -722,7 +752,7 @@ public class Executor {
 	     * 
 	     * @return true or false
 	     */
-	    public boolean isIdNotInitialized(String id) {
+	    private boolean isIdNotInitialized(String id) {
 			
 	    	if(this.table.get(id) == null)
 	    		return true;

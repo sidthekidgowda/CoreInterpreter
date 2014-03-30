@@ -191,7 +191,7 @@ public class CoreInterpreterTest {
 		//test 5 - test case
 		core = new CoreInterpreter(new BufferedReader(new FileReader("caseExec")));
 		
-		test = core.executor(new BufferedReader(new StringReader("2")));
+		test = core.executor(new BufferedReader(new StringReader("15")));
 			
 		flag = test == null;
 			

@@ -1,0 +1,35 @@
+Sid Gowda
+
+
+So the way I implemented CoreInterpreter was I created a Scanner class, which took the input and created Tokens whenever the Parser class needed one. 
+Once the Parser parsed the input and everything was syntactically and semantically correct. 
+I then created a Printer class which created the pretty printed program as a string.
+I then created a Executor class which executed the program and return a list of values.
+
+The Scanner had the methods nextToken() and currenToken(), which created a new token inside the private method createToken(). 
+There was an inner class inside the scanner which created a Token object with an enumeration constant as a TokenType and the TokenValue as a String.
+
+The Parser asked the Scanner for the next token and read the tokens and parsed the tokens through the grammar. 
+These tokens were then added into the ParseTree.
+
+When I was created the ParseTree, I was using a ParseTable representation. 
+The ParseTable needed to know which row to add the nonterminal, alternative and children into.
+
+The methods I used to interface with the ParseTable was addNonTerminals(), addChild(), and addAlternative(). 
+The ParseTable was represented by a List of Terminals< Key = Row Number, Value = Non Terminals>, Map of Alternatives<Key = Row Number, Value = Alternative Rule No>, Map of Children<Key = Row Number, Value = List<Children of Row Number>>
+
+Once the ParseTree was created. I then created the methods moveCursorUp, moveCursorToChild(int), moveCursorToRoot(), getAlternativeNumber(), getNonTerminal(). 
+This allowed the Printer and Executor to parse through the ParseTree without knowing which row numbers to go towards.
+
+
+For testing, I tested the Parser and Scanner using their own test files to see if the grammar was syntactically correct or not. 
+I then created a junit file for the CoreInterpreter and tested the printer and executor inside.
+
+I did not find any bugs in the parser or the printer. 
+The only bug i could find in the scanner was when the input is a number with characters with it like: 55ae
+
+But the parser does not allow this in the grammar.
+
+The only bug I could find in the executor was the case block which did not work.
+
+I mainly borrowed ideas from the notes in creating the parse tree.
