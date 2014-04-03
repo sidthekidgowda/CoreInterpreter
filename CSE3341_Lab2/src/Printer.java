@@ -489,7 +489,7 @@ public class Printer {
 			this.parse_tree.moveCursorToChild(1);
 			cond.append(this.printCond());
 			this.parse_tree.moveCursorUp();
-			cond.append(" AND ");
+			cond.append("AND");
 			this.parse_tree.moveCursorToChild(2);
 			cond.append(this.printCond());
 			cond.append(")");
